@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ofMain.h"
+#include "Program.h"
 
 class ofApp : public ofBaseApp{
 
@@ -8,6 +9,7 @@ class ofApp : public ofBaseApp{
 		void setup();
 		void update();
 		void draw();
+		void exit();
 
 		void keyPressed(int key);
 		void keyReleased(int key);
@@ -21,4 +23,16 @@ class ofApp : public ofBaseApp{
 		void dragEvent(ofDragInfo dragInfo);
 		void gotMessage(ofMessage msg);
 		
+
+		virtual void audioOut(ofSoundBuffer& output) override;
+
+private:
+	ofSoundStreamSettings mSoundSettings;
+	ofMutex mMutex;
+	ofSoundBuffer mOutput;
+	size_t mOutputBegin;
+	Program* mProgram;
+	unsigned mBitDepth;
+	unsigned mTempo;
+	Program::Value mTick;
 };
