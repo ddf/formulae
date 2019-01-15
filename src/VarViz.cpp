@@ -3,13 +3,15 @@
 #include "ofGraphics.h"
 #include "ofPolyline.h"
 
-VarViz::VarViz(const char varName, const size_t bufferSize, const size_t sampleRate, float x, float y, float w, float h)
+VarViz::VarViz(const char varName, float x, float y, float w, float h, const VarVizType vizType, const size_t bufferSize, const size_t sampleRate, const Program::Value range )
 	: Var(varName)
+	, mVizType(vizType)
 	, mX(x), mY(y)
 	, mW(w), mH(h)
 	, mHead(0)
 	, mSize(bufferSize)
 	, mSampleRate(sampleRate)
+	, mRange(range)
 	, mCount(1)
 {
 	mBuffer = new Program::Value[bufferSize];
@@ -26,7 +28,7 @@ void VarViz::push(Program::Value value)
 	--mCount;
 	if (mCount == 0)
 	{
-		mBuffer[mHead] = value;
+		mBuffer[mHead] = mRange ? value % mRange : value;
 		mHead = (mHead + 1) % mSize;
 		mCount = mSampleRate;
 	}
@@ -43,18 +45,41 @@ void VarViz::draw()
 	ofSetRectMode(OF_RECTMODE_CORNER);
 	ofNoFill();
 	ofDrawRectangle(x, y, w, h);
-	ofPolyline line;
+	
 	Program::Value max = 0;
 	for (int i = 0; i < mSize; ++i)
 	{
 		max = std::max(max, mBuffer[i]);
 	}
-	for (int i = 0; i < mSize; ++i)
+
+	switch (mVizType)
 	{
-		int s = (mHead + i) % mSize;
-		float vx = x + ofMap(i, 0, mSize, 0, w);
-		float vy = y + h - h * ((float)mBuffer[s] / max);
-		line.addVertex(vx, vy);
+		case kVizTypeWave:
+		{
+			ofPolyline line;
+			for (int i = 0; i < mSize; ++i)
+			{
+				int s = (mHead + i) % mSize;
+				float vx = x + ofMap(i, 0, mSize - 1, w, 0);
+				float vy = y + h - h * ((float)mBuffer[s] / max);
+				line.addVertex(vx, vy);
+			}
+			line.draw();
+		}
+		break;
+
+		case kVizTypeBars:
+		{
+			const float cy = y + h * 0.5f;
+			for (int i = 0; i < mSize; ++i)
+			{
+				int s = (mHead + i) % mSize;
+				float bx = x + ofMap(i, 0, mSize - 1, w, 0);
+				float bh = h * ((float)mBuffer[s] / max) * 0.5f;
+				ofDrawLine(bx, cy + bh, bx, cy - bh);
+			}
+		}
+		break;
 	}
-	line.draw();
+
 }

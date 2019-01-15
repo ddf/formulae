@@ -44,10 +44,10 @@ void ofApp::setup()
 	mTempo = 60;
 	mBitDepth = 15;
 
-	mVars.push_back(new VarViz('k', 1024 * 8, 1, 0.1f, 0.1f, 0.1f, 0.1f));
-	mVars.push_back(new VarViz('s', 1024 * 8, 1, 0.1f, 0.25, 0.1f, 0.1f));
-	mVars.push_back(new VarViz('h', 1024 * 2, 1, 0.1f, 0.4f, 0.1f, 0.1f));
-	mVars.push_back(new VarViz('a', 1024 / 8, 32, 0.3f, 0.1f, 0.5f, 0.5f));
+	mVars.push_back(new VarViz('k', 0.1f, 0.1f, 0.1f, 0.1f, kVizTypeBars, 1024 * 8));
+	mVars.push_back(new VarViz('s', 0.1f, 0.25, 0.1f, 0.1f, kVizTypeBars, 1024 * 8));
+	mVars.push_back(new VarViz('h', 0.1f, 0.4f, 0.1f, 0.1f, kVizTypeWave, kSampleRate / mTempo / 2));
+	mVars.push_back(new VarViz('a', 0.3f, 0.1f, 0.5f, 0.5f, kVizTypeBars, 1024 / 8, 1, 1<<mBitDepth));
 }
 
 //--------------------------------------------------------------
@@ -75,7 +75,7 @@ void ofApp::draw()
 	//	left.addVertex(i, leftCenter + waveHeight * mOutput[f]);
 	//	right.addVertex(i, rightCenter + waveHeight * mOutput[f + 1]);
 	//}
-	for (int i = 0; i < mVars.size(); ++i)
+	for (size_t i = 0; i < mVars.size(); ++i)
 	{
 		mVars[i]->draw();
 	}
@@ -176,7 +176,7 @@ void ofApp::audioOut(ofSoundBuffer& output)
 			error = mProgram->Run(results, 2);
 			output[f] = -1.0f + 2.0f*((float)(results[0] % range) / (range - 1));
 			output[f + 1] = -1.0f + 2.0f*((float)(results[1] % range) / (range - 1));
-			for (int i = 0; i < mVars.size(); ++i)
+			for (size_t i = 0; i < mVars.size(); ++i)
 			{
 				auto  var = mVars[i];
 				var->push(mProgram->Get(var->Var));
