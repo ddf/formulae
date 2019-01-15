@@ -50,6 +50,9 @@ void VarViz::draw()
 	const int h = mH * ofGetHeight();
 
 	ofSetColor(200);
+
+	ofDrawBitmapString(Var, x, y-5);
+
 	ofSetRectMode(OF_RECTMODE_CORNER);
 	ofNoFill();
 	ofDrawRectangle(x, y, w, h);

@@ -47,7 +47,7 @@ void ofApp::setup()
 	mVars.push_back(new VarViz('k', 0.1f, 0.1f, 0.1f, 0.1f, kVizTypeBars, 1024 * 8));
 	mVars.push_back(new VarViz('s', 0.1f, 0.25, 0.1f, 0.1f, kVizTypeBars, 1024 * 8));
 	mVars.push_back(new VarViz('h', 0.1f, 0.4f, 0.1f, 0.1f, kVizTypeScatter, kSampleRate / mTempo));
-	mVars.push_back(new VarViz('a', 0.3f, 0.1f, 0.5f, 0.5f, kVizTypeBars, 1024 / 8, 1, 1<<mBitDepth));
+	mVars.push_back(new VarViz('a', 0.25f, 0.1f, 0.5f, 0.5f, kVizTypeBars, 1024 / 8, 1, 1<<mBitDepth));
 }
 
 //--------------------------------------------------------------
