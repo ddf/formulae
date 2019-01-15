@@ -2,6 +2,7 @@
 
 #include "ofMain.h"
 #include "Program.h"
+#include "VarViz.h"
 
 class ofApp : public ofBaseApp{
 
@@ -35,4 +36,6 @@ private:
 	unsigned mBitDepth;
 	unsigned mTempo;
 	Program::Value mTick;
+
+	std::vector<VarViz*> mVars;
 };
