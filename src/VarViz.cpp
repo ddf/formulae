@@ -14,6 +14,7 @@ VarViz::VarViz(const char varName, float x, float y, float w, float h, const Var
 	, mSampleRate(sampleRate)
 	, mRange(range)
 	, mCount(1)
+	, mMax(1)
 {
 	mBuffer = new Program::Value[bufferSize];
 }
@@ -28,8 +29,14 @@ void VarViz::push(Program::Value value)
 {
 	--mCount;
 	if (mCount == 0)
-	{
+	{		
+		if (mMax > 1)
+		{
+			--mMax;
+		}
+
 		mBuffer[mHead] = mRange ? value % mRange : value;
+		mMax = std::max(mBuffer[mHead], mMax);
 		mHead = (mHead + 1) % mSize;
 		mCount = mSampleRate;
 	}
@@ -37,21 +44,15 @@ void VarViz::push(Program::Value value)
 
 void VarViz::draw()
 {
-	const float x = mX * ofGetWidth();
-	const float y = mY * ofGetHeight();
-	const float w = mW * ofGetWidth();
-	const float h = mH * ofGetHeight();
+	const int x = mX * ofGetWidth();
+	const int y = mY * ofGetHeight();
+	const int w = mW * ofGetWidth();
+	const int h = mH * ofGetHeight();
 
 	ofSetColor(200);
 	ofSetRectMode(OF_RECTMODE_CORNER);
 	ofNoFill();
 	ofDrawRectangle(x, y, w, h);
-	
-	Program::Value max = 0;
-	for (int i = 0; i < mSize; ++i)
-	{
-		max = std::max(max, mBuffer[i]);
-	}
 
 	switch (mVizType)
 	{
@@ -62,7 +63,7 @@ void VarViz::draw()
 			{
 				int s = (mHead + i) % mSize;
 				float vx = x + ofMap(i, 0, mSize - 1, w, 0);
-				float vy = y + h - h * ((float)mBuffer[s] / max);
+				float vy = y + h - h * ((float)mBuffer[s] / mMax);
 				line.addVertex(vx, vy);
 			}
 			line.draw();
@@ -76,7 +77,7 @@ void VarViz::draw()
 			{
 				int s = (mHead + i) % mSize;
 				float bx = x + ofMap(i, 0, mSize - 1, w, 0);
-				float bh = h * ((float)mBuffer[s] / max) * 0.5f;
+				float bh = h * ((float)mBuffer[s] / mMax) * 0.5f;
 				ofDrawLine(bx, cy + bh, bx, cy - bh);
 			}
 		}
@@ -90,9 +91,9 @@ void VarViz::draw()
 			for (int i = 0; i < mSize; ++i)
 			{
 				int sz = w * h;
-				int s = ((float)mBuffer[(mHead + i) % mSize] / max) * sz;
-				float sx = x + s % (int)w;
-				float sy = y + h - s / (int)w;
+				int s = ((float)mBuffer[(mHead + i) % mSize] / mMax) * sz;
+				int sx = x + s % (int)w;
+				int sy = y + h - s / (int)w;
 				mesh.addVertex(ofVec3f(sx, sy, 0));
 			}
 			mesh.drawVertices();

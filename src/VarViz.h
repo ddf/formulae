@@ -29,6 +29,7 @@ private:
 	const Program::Value mRange;
 	const float mX, mY, mW, mH;
 	Program::Value* mBuffer;
+	Program::Value mMax;
 	size_t mHead;
 	size_t mCount;
 };
