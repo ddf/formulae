@@ -5,7 +5,8 @@
 enum VarVizType
 {
 	kVizTypeWave,
-	kVizTypeBars
+	kVizTypeBars,
+	kVizTypeScatter,
 };
 
 class VarViz
