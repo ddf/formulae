@@ -25,29 +25,31 @@ void ofApp::setup()
 	Program::CompileError error;
 	int errorPosition;
 	mProgram = Program::Compile(
-	   "c = 16 * (1 + (q/1024)%8); \
+	   "c = 16 * (1 + (q/1024)%8) + (q/16)%16; \
 		r = q / c; \
 		s = $(q / 128) * (t << (r % 3 + 1) & t << (r % 5 + 1)); \
 		z = (s << 3) ^ (s << 5) ^ (s << 7) ^ (s << 11) ^ (s << 13) ^ (s << 17) ^ (s << 19) ^ (s << 23); \
-		a = q < 128 * 4 ? 0 : z; \
+		z = q < 128 * 4 ? 0 : z; \
 		j = j + (64 - 2 * (q % 32)); \
 		k = $(j) << 4 >> q; \
 		s = ((q / 64) % 2) * ($(t * 320) | R(w / 2)) << 6 >> q; \
 		h = ((w / 4) + R(w / 2)) >> (q*(c < 112 ? 4 : 3)); \
 		d = (k | s | h) * (q / 1024 + 1); \
-		a = a >> d * d; \
+		z = z >> d * d; \
 		d = d >> c / 32; \
-		[0] = d | (w / 2 + a); \
-		[1] = d | (w / 2 - a); ", 
+		[0] = d | (w / 2 + z); \
+		[1] = d | (w / 2 - z); ", 
 		512, error, errorPosition);
 	mTick = 0;
 	mTempo = 60;
 	mBitDepth = 15;
 
-	mVars.push_back(new VarViz('k', 0.1f, 0.1f, 0.1f, 0.1f, kVizTypeBars, 1024 * 8));
-	mVars.push_back(new VarViz('s', 0.1f, 0.25, 0.1f, 0.1f, kVizTypeBars, 1024 * 8));
-	mVars.push_back(new VarViz('h', 0.1f, 0.4f, 0.1f, 0.1f, kVizTypeScatter, kSampleRate / mTempo));
-	mVars.push_back(new VarViz('a', 0.25f, 0.1f, 0.5f, 0.5f, kVizTypeBars, 1024 / 8, 1, 1<<mBitDepth));
+	mVars.push_back(new VarViz('c', 0.1f, 0.1f, 0.1, 0.1f, kVizTypeBlocks, 1, 1, 16 * 8));
+	mVars.push_back(new VarViz('h', 0.1f, 0.25f, 0.1f, 0.1f, kVizTypeScatter, kSampleRate / mTempo));
+	mVars.push_back(new VarViz('s', 0.1f, 0.4, 0.1f, 0.1f, kVizTypeBars, 1024 * 8));
+	mVars.push_back(new VarViz('k', 0.1f, 0.55f, 0.1f, 0.1f, kVizTypeBars, 1024 * 8));
+
+	mVars.push_back(new VarViz('z', 0.25f, 0.1f, 0.55f, 0.55f, kVizTypeBars, 1024 / 8, 1, 1<<mBitDepth));
 }
 
 //--------------------------------------------------------------

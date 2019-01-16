@@ -44,23 +44,23 @@ void VarViz::push(Program::Value value)
 
 void VarViz::draw()
 {
-	const int x = mX * ofGetWidth();
-	const int y = mY * ofGetHeight();
-	const int w = mW * ofGetWidth();
-	const int h = mH * ofGetHeight();
+	int x = mX * ofGetWidth();
+	int y = mY * ofGetHeight();
+	int w = mW * ofGetWidth();
+	int h = mH * ofGetHeight();
 
 	ofSetColor(200);
 
 	ofDrawBitmapString(Var, x, y-5);
 
-	ofSetRectMode(OF_RECTMODE_CORNER);
-	ofNoFill();
-	ofDrawRectangle(x, y, w, h);
-
 	switch (mVizType)
 	{
 		case kVizTypeWave:
 		{
+			ofSetRectMode(OF_RECTMODE_CORNER);
+			ofNoFill();
+			ofDrawRectangle(x, y, w, h);
+
 			ofPolyline line;
 			for (int i = 0; i < mSize; ++i)
 			{
@@ -75,6 +75,10 @@ void VarViz::draw()
 
 		case kVizTypeBars:
 		{
+			ofSetRectMode(OF_RECTMODE_CORNER);
+			ofNoFill();
+			ofDrawRectangle(x, y, w, h);
+
 			const float cy = y + h * 0.5f;
 			for (int i = 0; i < mSize; ++i)
 			{
@@ -88,6 +92,10 @@ void VarViz::draw()
 
 		case kVizTypeScatter:
 		{
+			ofSetRectMode(OF_RECTMODE_CORNER);
+			ofNoFill();
+			ofDrawRectangle(x, y, w, h);
+
 			ofSetColor(255);
 			ofMesh mesh;
 			mesh.setMode(OF_PRIMITIVE_POINTS);
@@ -100,6 +108,31 @@ void VarViz::draw()
 				mesh.addVertex(ofVec3f(sx, sy, 0));
 			}
 			mesh.drawVertices();
+		}
+		break;
+
+		case kVizTypeBlocks:
+		{
+			ofSetRectMode(OF_RECTMODE_CENTER);
+			float step = w / 16.0f;
+			float radius = step * 0.85f;
+			x += radius / 2;
+			y += radius / 2;
+			for (int i = 0; i < mRange; ++i)
+			{
+				float cx = x + (i % 16) * step;
+				float cy = y + (i / 16) * step;
+				ofDrawRectangle(cx, cy, radius, radius);
+			}
+
+			ofFill();
+			for (int i = 0; i < mSize; ++i)
+			{
+				auto s = mBuffer[(mHead + i) % mSize];
+				float cx = x + (s % 16) * step;
+				float cy = y + (s / 16) * step;
+				ofDrawRectangle(cx, cy, radius, radius);
+			}
 		}
 		break;
 	}
