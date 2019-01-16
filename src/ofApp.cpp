@@ -25,15 +25,19 @@ void ofApp::setup()
 	Program::CompileError error;
 	int errorPosition;
 	mProgram = Program::Compile(
-	   "c = 16 * (1 + (q/1024)%8) + (q/16)%16; \
+	   "c = 16 * (1 + (q/1024)%8) + (q/(256 - 16*V0))%16; \
 		r = q / c; \
-		s = $(q / 128) * (t << (r % 3 + 1) & t << (r % 5 + 1)); \
+		a = t / (32 - V4); \
+		s = $(q / 128) * (a << (r % 3 + 1) & a << (r % 5 + 1)); \
 		z = (s << 3) ^ (s << 5) ^ (s << 7) ^ (s << 11) ^ (s << 13) ^ (s << 17) ^ (s << 19) ^ (s << 23); \
-		z = q < 128 * 4 ? 0 : z; \
-		j = j + (64 - 2 * (q % 32)); \
-		k = $(j) << 4 >> q; \
-		s = ((q / 64) % 2) * ($(t * 320) | R(w / 2)) << 6 >> q; \
-		h = ((w / 4) + R(w / 2)) >> (q*(c < 112 ? 4 : 3)); \
+		z = q < 128 * 4 | V4 < 1 ? 0 : z; \
+		j = j + (64 - 4 * (q % 16)); \
+		k = $(j) << 4 >> (q*V3); k = k * (V3>0); \
+		s = ((q / 64) % 2) * ($(t * 320) | R(w / 2)) << 6 >> (q*V2); \
+		s = s * (V2 > 0); \
+		b = V1; \
+		h = ((w / 4) + R(w / 2)) >> (q*(c < 112 ? b : b-1)); \
+		h = h * (V1 > 0); \
 		d = (k | s | h) * (q / 1024 + 1); \
 		z = z >> d * d; \
 		d = d >> c / 32; \
@@ -44,7 +48,40 @@ void ofApp::setup()
 	mTempo = 60;
 	mBitDepth = 15;
 
-	mVars.push_back(new VarViz('c', 0.1f, 0.1f, 0.1, 0.1f, kVizTypeBlocks, 1, 1, 16 * 8));
+	// c
+	V0.setMin(0);
+	V0.setMax(15);
+	V0 = 8;
+
+	// h
+	V1.setMin(0);
+	V1.setMax(32);
+	V1 = 4;
+
+	// s
+	V2.setMin(0);
+	V2.setMax(32);
+	V2 = 1;
+
+	// k
+	V3.setMin(0);
+	V3.setMax(8);
+	V3 = 1;
+
+	// z
+	V4.setMin(0);
+	V4.setMax(31);
+	V4 = 31;
+
+	mGUI.setup("prime_glitch");
+	mGUI.add(V0);
+	mGUI.add(V1);
+	mGUI.add(V2);
+	mGUI.add(V3);
+	mGUI.add(V4);
+	mGUI.add(V5);
+
+	mVars.push_back(new VarViz('c', 0.1f, 0.1f, 0.1, 0.1f, kVizTypeBlocks, 1, 1, 16 * 8));	
 	mVars.push_back(new VarViz('h', 0.1f, 0.25f, 0.1f, 0.1f, kVizTypeScatter, kSampleRate / mTempo));
 	mVars.push_back(new VarViz('s', 0.1f, 0.4, 0.1f, 0.1f, kVizTypeBars, 1024 * 8));
 	mVars.push_back(new VarViz('k', 0.1f, 0.55f, 0.1f, 0.1f, kVizTypeBars, 1024 * 8));
@@ -86,6 +123,8 @@ void ofApp::draw()
 	ofSetColor(200);
 	left.draw();
 	right.draw();
+
+	mGUI.draw();
 }
 
 void ofApp::exit()
@@ -173,6 +212,14 @@ void ofApp::audioOut(ofSoundBuffer& output)
 			mProgram->Set('t', mTick);
 			mProgram->Set('m', (Program::Value)round(mTick / mdenom));
 			mProgram->Set('q', (Program::Value)round(mTick / qdenom));
+			mProgram->SetVC(0, V0);
+			mProgram->SetVC(1, V1);
+			mProgram->SetVC(2, V2);
+			mProgram->SetVC(3, V3);
+			mProgram->SetVC(4, V4);
+			mProgram->SetVC(5, V5);
+			mProgram->SetVC(6, V6);
+			mProgram->SetVC(7, V7);
 			results[0] = 0;
 			results[1] = 0;
 			error = mProgram->Run(results, 2);

@@ -1,6 +1,8 @@
 #pragma once
 
 #include "ofMain.h"
+#include "ofxGui.h"
+
 #include "Program.h"
 #include "VarViz.h"
 
@@ -36,6 +38,9 @@ private:
 	unsigned mBitDepth;
 	unsigned mTempo;
 	Program::Value mTick;
+
+	ofxGuiGroup mGUI;
+	ofParameter<Program::Value> V0, V1, V2, V3, V4, V5, V6, V7;
 
 	std::vector<VarViz*> mVars;
 };

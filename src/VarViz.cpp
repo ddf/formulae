@@ -4,6 +4,8 @@
 #include "ofPolyline.h"
 #include "ofMesh.h"
 
+const Program::Value kMin = 1;
+
 VarViz::VarViz(const char varName, float x, float y, float w, float h, const VarVizType vizType, const size_t bufferSize, const size_t sampleRate, const Program::Value range )
 	: Var(varName)
 	, mVizType(vizType)
@@ -14,7 +16,7 @@ VarViz::VarViz(const char varName, float x, float y, float w, float h, const Var
 	, mSampleRate(sampleRate)
 	, mRange(range)
 	, mCount(1)
-	, mMax(1)
+	, mMax(std::max(kMin, range))
 {
 	mBuffer = new Program::Value[bufferSize];
 }
@@ -30,11 +32,6 @@ void VarViz::push(Program::Value value)
 	--mCount;
 	if (mCount == 0)
 	{		
-		if (mMax > 1)
-		{
-			--mMax;
-		}
-
 		mBuffer[mHead] = mRange ? value % mRange : value;
 		mMax = std::max(mBuffer[mHead], mMax);
 		mHead = (mHead + 1) % mSize;
