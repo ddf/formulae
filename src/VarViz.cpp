@@ -54,16 +54,18 @@ void VarViz::generateDraw()
 {
 	mBack.clear();
 
+	mBack.setFillColor(thisBackgroundColor);
+	mBack.setFilled(true);
+
 	if (mVizType != kVizTypeBlocks)
-	{
-		mBack.setFillColor(thisBackgroundColor);
-		mBack.setFilled(true);
+	{		
 		mBack.rectangle(b);
 	}
 
 	mViz.clear();
-	mViz.setColor(thisFillColor);
+	mViz.setColor(thisBorderColor);
 	mViz.setFilled(false);
+	mViz.setStrokeWidth(1);
 
 	ofPoint pos = getPosition();
 	float h = b.getHeight();
@@ -115,9 +117,9 @@ void VarViz::generateDraw()
 		case kVizTypeBlocks:
 		{
 			float step = w / 16.0f;
-			float radius = step * 0.85f;
-			pos.x += radius / 2;
-			pos.y += radius / 2;
+			float radius = step * 0.85f * 0.5f;
+			pos.x += step / 2;
+			pos.y += step / 2;
 
 			for (int i = 0; i < mRange; ++i)
 			{

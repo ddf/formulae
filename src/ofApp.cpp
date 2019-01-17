@@ -73,9 +73,10 @@ void ofApp::setup()
 	V4.setMax(31);
 	V4 = 31;
 
-	ofxBaseGui::setDefaultFillColor(ofColor(200));
+	ofxBaseGui::setDefaultBorderColor(ofColor(250));
 
 	mGUI.setup("prime_glitch");
+	
 	mGUI.add(V0);
 	mGUI.add(V1);
 	mGUI.add(V2);
