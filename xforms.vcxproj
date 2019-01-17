@@ -189,6 +189,7 @@ S:\dev\of_v0.10.1_vs2017_release\addons\ofxGui\src;%(AdditionalIncludeDirectorie
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\ofApp.cpp" />
     <ClCompile Include="src\Program.cpp" />
+    <ClCompile Include="src\ProgramGUI.cpp" />
     <ClCompile Include="src\VarViz.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -205,6 +206,7 @@ S:\dev\of_v0.10.1_vs2017_release\addons\ofxGui\src;%(AdditionalIncludeDirectorie
     <ClInclude Include="..\..\..\addons\ofxGui\src\ofxToggle.h" />
     <ClInclude Include="src\ofApp.h" />
     <ClInclude Include="src\Program.h" />
+    <ClInclude Include="src\ProgramGUI.h" />
     <ClInclude Include="src\VarViz.h" />
   </ItemGroup>
   <ItemGroup>

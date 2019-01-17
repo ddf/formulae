@@ -51,54 +51,96 @@ void ofApp::setup()
 	// c
 	V0.setMin(0);
 	V0.setMax(15);
-	V0 = 8;
+	V0.set("c", 8);
 
 	// h
 	V1.setMin(0);
 	V1.setMax(32);
-	V1 = 4;
+	V1.set("h", 4);
 
 	// s
 	V2.setMin(0);
 	V2.setMax(32);
-	V2 = 1;
+	V2.set("s", 1);
 
 	// k
 	V3.setMin(0);
 	V3.setMax(8);
-	V3 = 1;
+	V3.set("k", 1);
 
 	// z
 	V4.setMin(0);
 	V4.setMax(31);
-	V4 = 31;
+	V4.set("z", 31);
+
+	const float w = ofGetWidth();
+	const float h = ofGetHeight();
+	float smallWidth = w*0.215f;
+	float smallHeight = h*0.215f;
+	float bigSize = 0.7025f;
+	ofPoint space(0, 10);
+	VarViz* viz = nullptr;
+	ofxBaseGui* vc = nullptr;
 
 	ofxBaseGui::setDefaultBorderColor(ofColor(250));
+	ofxBaseGui::setDefaultWidth(smallWidth);
 
-	mGUI.setup("prime_glitch");
-	
-	mGUI.add(V0);
+	mGUI.setup("prime_glitch");	
+
 	mGUI.add(V1);
+	viz = new VarViz('h', smallWidth, smallHeight, kVizTypeScatter, kSampleRate / mTempo);
+	viz->setName("hviz");
+	mGUI.add(viz);
+	mVars.push_back(viz);
+
+	auto rect = mGUI.getShape();
+	rect.growToInclude(rect.getBottomLeft() + space);
+	mGUI.setShape(rect);
+
 	mGUI.add(V2);
+	viz = new VarViz('s', smallWidth, smallHeight, kVizTypeBars, 1024 * 8);
+	viz->setName("sviz");
+	mGUI.add(viz);
+	mVars.push_back(viz);
+
+	rect = mGUI.getShape();
+	rect.growToInclude(rect.getBottomLeft() + space);
+	mGUI.setShape(rect);
+	
 	mGUI.add(V3);
+	viz = new VarViz('k', smallWidth, smallHeight, kVizTypeBars, 1024 * 8);
+	viz->setName("kviz");
+	mGUI.add(viz);
+	mVars.push_back(viz);
+
+	rect = mGUI.getShape();
+	rect.growToInclude(rect.getBottomLeft() + space);
+	mGUI.setShape(rect);
+
+	mGUI.add(V0);
+	viz = new VarViz('c', smallWidth, smallHeight, kVizTypeBlocks, 1, 1, 16 * 8);
+	viz->setName("cviz");
+	mGUI.add(viz);
+	mVars.push_back(viz);
+
+	rect = mGUI.getShape();
+	rect.growToInclude(rect.getBottomLeft() + space);
+	mGUI.setShape(rect);
+
+	ofxBaseGui::setDefaultWidth(bigSize*w);
+	
 	mGUI.add(V4);
 
-	float smallWidth = ofGetWidth()*0.1f;
-	float smallHeight = ofGetHeight()*0.1f;
+	ofxBaseGui* c = mGUI.getControl("h");
+	ofxBaseGui* z = mGUI.getControl("z");
+	z->setPosition(c->getPosition() + ofPoint(c->getWidth() + 20, 0));
 
-	mVars.push_back(new VarViz('c', smallWidth, smallHeight, kVizTypeBlocks, 1, 1, 16 * 8));	
-	mVars.push_back(new VarViz('h', smallWidth, smallHeight, kVizTypeScatter, kSampleRate / mTempo));
-	mVars.push_back(new VarViz('s', smallWidth, smallHeight, kVizTypeBars, 1024 * 8));
-	mVars.push_back(new VarViz('k', smallWidth, smallHeight, kVizTypeBars, 1024 * 8));
+	viz = new VarViz('z', bigSize*w, mGUI.getControl("kviz")->getShape().getBottom() - mGUI.getControl("hviz")->getPosition().y, kVizTypeBars, 1024 / 8, 1, 1 << mBitDepth);
+	mGUI.add(viz);
+	viz->setPosition(z->getPosition() + ofPoint(0, z->getHeight()));
+	mVars.push_back(viz);
 
-	mVars.push_back(new VarViz('z', 0.55f * ofGetWidth(), 0.55f*ofGetHeight(), kVizTypeBars, 1024 / 8, 1, 1<<mBitDepth));
-
-	for (auto var : mVars)
-	{
-		mGUI.add(var);
-	}
-
-	mGUI.setShape(0, 0, ofGetWidth(), ofGetHeight());
+	mGUI.setShape(0, 0, w, h);
 }
 
 //--------------------------------------------------------------

@@ -4,6 +4,7 @@
 #include "ofxGui.h"
 
 #include "Program.h"
+#include "ProgramGUI.h"
 #include "VarViz.h"
 
 class ofApp : public ofBaseApp{
@@ -39,7 +40,7 @@ private:
 	unsigned mTempo;
 	Program::Value mTick;
 
-	ofxGuiGroup mGUI;
+	ProgramGUI mGUI;
 	ofParameter<Program::Value> V0, V1, V2, V3, V4, V5, V6, V7;
 
 	std::vector<VarViz*> mVars;
