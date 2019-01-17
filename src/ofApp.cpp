@@ -73,20 +73,31 @@ void ofApp::setup()
 	V4.setMax(31);
 	V4 = 31;
 
+	ofxBaseGui::setDefaultFillColor(ofColor(200));
+
 	mGUI.setup("prime_glitch");
 	mGUI.add(V0);
 	mGUI.add(V1);
 	mGUI.add(V2);
 	mGUI.add(V3);
 	mGUI.add(V4);
-	mGUI.add(V5);
 
-	mVars.push_back(new VarViz('c', 0.1f, 0.1f, 0.1, 0.1f, kVizTypeBlocks, 1, 1, 16 * 8));	
-	mVars.push_back(new VarViz('h', 0.1f, 0.25f, 0.1f, 0.1f, kVizTypeScatter, kSampleRate / mTempo));
-	mVars.push_back(new VarViz('s', 0.1f, 0.4, 0.1f, 0.1f, kVizTypeBars, 1024 * 8));
-	mVars.push_back(new VarViz('k', 0.1f, 0.55f, 0.1f, 0.1f, kVizTypeBars, 1024 * 8));
+	float smallWidth = ofGetWidth()*0.1f;
+	float smallHeight = ofGetHeight()*0.1f;
 
-	mVars.push_back(new VarViz('z', 0.25f, 0.1f, 0.55f, 0.55f, kVizTypeBars, 1024 / 8, 1, 1<<mBitDepth));
+	mVars.push_back(new VarViz('c', smallWidth, smallHeight, kVizTypeBlocks, 1, 1, 16 * 8));	
+	mVars.push_back(new VarViz('h', smallWidth, smallHeight, kVizTypeScatter, kSampleRate / mTempo));
+	mVars.push_back(new VarViz('s', smallWidth, smallHeight, kVizTypeBars, 1024 * 8));
+	mVars.push_back(new VarViz('k', smallWidth, smallHeight, kVizTypeBars, 1024 * 8));
+
+	mVars.push_back(new VarViz('z', 0.55f * ofGetWidth(), 0.55f*ofGetHeight(), kVizTypeBars, 1024 / 8, 1, 1<<mBitDepth));
+
+	for (auto var : mVars)
+	{
+		mGUI.add(var);
+	}
+
+	mGUI.setShape(0, 0, ofGetWidth(), ofGetHeight());
 }
 
 //--------------------------------------------------------------
@@ -98,33 +109,10 @@ void ofApp::update(){
 void ofApp::draw()
 {
 	ofBackground(0);
-	
-	ofPolyline left;
-	ofPolyline right;
-	const float leftCenter = ofGetHeight() * 0.75f;
-	const float rightCenter = ofGetHeight() * 0.25f;
-	const float waveHeight = ofGetHeight() * 0.25f;
 
 	mMutex.lock();
-	//int w = ofGetWidth();
-	//int sz = mOutput.size();
-	//for (int i = 0; i < w; i += 2)
-	//{
-	//	int f = (mOutputBegin + i) % sz;
-	//	left.addVertex(i, leftCenter + waveHeight * mOutput[f]);
-	//	right.addVertex(i, rightCenter + waveHeight * mOutput[f + 1]);
-	//}
-	for (size_t i = 0; i < mVars.size(); ++i)
-	{
-		mVars[i]->draw();
-	}
-	mMutex.unlock();
-
-	ofSetColor(200);
-	left.draw();
-	right.draw();
-
 	mGUI.draw();
+	mMutex.unlock();
 }
 
 void ofApp::exit()
@@ -228,7 +216,7 @@ void ofApp::audioOut(ofSoundBuffer& output)
 			for (size_t i = 0; i < mVars.size(); ++i)
 			{
 				auto  var = mVars[i];
-				var->push(mProgram->Get(var->Var));
+				var->push(mProgram->Get(var->getVar()));
 
 			}
 			++mTick;
