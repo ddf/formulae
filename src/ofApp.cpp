@@ -107,9 +107,9 @@ void ofApp::loadProgram(ofXml programSettings)
 
 				ui->setShape(x*ws, y*hs, w*ws, h*hs);
 			}
-		}
+		}		
 	}
-
+	
 	mProgramGUI.setShape(0, 0, ofGetWidth(), ofGetHeight());
 
 	Program::CompileError error;

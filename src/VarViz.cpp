@@ -74,12 +74,12 @@ void VarViz::generateDraw()
 	{
 		case kVizTypeWave:
 		{
-			mViz.moveTo(pos);
+			mViz.moveTo(b.getBottomLeft());
 			
 			for (int i = 0; i < mSize; ++i)
 			{
 				int s = (mHead + i) % mSize;
-				float vx = pos.x + ofMap(i, 0, mSize - 1, w, 0);
+				float vx = pos.x + ofMap(i, 0, mSize-1, 0, w);
 				float vy = pos.y + h - h * ((float)mBuffer[s] / mMax);
 				mViz.lineTo(vx, vy);
 			}
