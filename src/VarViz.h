@@ -14,14 +14,14 @@ enum VarVizType
 class VarViz : public ofxBaseGui
 {
 public:
-	VarViz(const char varName, float width = defaultWidth, float height = defaultHeight, const VarVizType vizType = kVizTypeWave, const size_t bufferSize = 1024, const size_t sampleRate = 1, const Program::Value range = 0)
+	VarViz( const std::string& guiName, const char varName, const VarVizType vizType = kVizTypeWave, const size_t bufferSize = 1024, const size_t sampleRate = 1, const Program::Value range = 0)
 	{
-		setup(varName, width, height, vizType, bufferSize, sampleRate, range);
+		setup(guiName, varName, vizType, bufferSize, sampleRate, range);
 	}
 
 	~VarViz();
 
-	VarViz* setup(const char varName, float width = defaultWidth, float height = defaultHeight, const VarVizType vizType = kVizTypeWave, const size_t bufferSize = 1024, const size_t sampleRate = 1, const Program::Value range = 0);
+	VarViz* setup(const std::string& guiName, const char varName, const VarVizType vizType = kVizTypeWave, const size_t bufferSize = 1024, const size_t sampleRate = 1, const Program::Value range = 0);
 
 	const char getVar() const { return mVar; }
 

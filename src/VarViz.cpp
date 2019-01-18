@@ -6,7 +6,7 @@
 
 const Program::Value kMin = 1;
 
-VarViz* VarViz::setup(const char varName, float width, float height, const VarVizType vizType, const size_t bufferSize, const size_t sampleRate, const Program::Value range)
+VarViz* VarViz::setup(const std::string& guiName, char varName, const VarVizType vizType, const size_t bufferSize, const size_t sampleRate, const Program::Value range)
 {
 	mVar = varName;
 	mVizType = vizType;
@@ -17,11 +17,10 @@ VarViz* VarViz::setup(const char varName, float width, float height, const VarVi
 	mCount = 1;
 	mMax = std::max(kMin, range);
 
-	b.width = width;
-	b.height = height;
-	setNeedsRedraw();
-
 	mBuffer.resize(mSize);
+
+	setSize(defaultWidth, defaultHeight);
+	setName(guiName);
 
 	return this;
 }

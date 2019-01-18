@@ -32,16 +32,32 @@ class ofApp : public ofBaseApp{
 
 private:
 	ofSoundStreamSettings mSoundSettings;
+	// full settings.xml file
+	ofXml mAppSettings;
+
 	ofMutex mMutex;
 	ofSoundBuffer mOutput;
 	size_t mOutputBegin;
+
 	Program* mProgram;
+	std::string mCode;
 	unsigned mBitDepth;
 	unsigned mTempo;
 	Program::Value mTick;
 
 	ProgramGUI mGUI;
 	ofParameter<Program::Value> V0, V1, V2, V3, V4, V5, V6, V7;
+	std::map<std::string, ofParameter<Program::Value>*> mVC = 
+	{
+		{ "V0", &V0 },
+		{ "V1", &V1 },
+		{ "V2", &V2 },
+		{ "V3", &V3 },
+		{ "V4", &V4 },
+		{ "V5", &V5 },
+		{ "V6", &V6 },
+		{ "V7", &V7 }
+	};
 
 	std::vector<VarViz*> mVars;
 };
