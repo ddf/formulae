@@ -31,12 +31,25 @@ class ofApp : public ofBaseApp{
 		virtual void audioOut(ofSoundBuffer& output) override;
 
 private:
+	void loadProgram(ofXml programSettings);
+	void closeProgram();
+
+	enum State
+	{
+		kStateMenu,
+		kStateProgram
+	} mState;
+
 	ofSoundStreamSettings mSoundSettings;
 	// full settings.xml file
 	ofXml mAppSettings;
+	std::vector<ofXml> mProgramList;
 
 	ofMutex mMutex;
 	ofSoundBuffer mOutput;
+
+	ofxLabel mMenu;
+	ofParameter<std::string> mMenuText;
 
 	Program* mProgram;
 	std::string mCode;
@@ -44,7 +57,7 @@ private:
 	unsigned mTempo;
 	Program::Value mTick;
 
-	ProgramGUI mGUI;
+	ProgramGUI mProgramGUI;
 	ofParameter<Program::Value> V0, V1, V2, V3, V4, V5, V6, V7;
 	std::map<std::string, ofParameter<Program::Value>*> mVC = 
 	{

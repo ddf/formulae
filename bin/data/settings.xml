@@ -1,7 +1,8 @@
 <?xml version="1.0"?>
-<program name="prime_glitch" bits="15" tempo="60" memory="512">
-  <code>
-    <![CDATA[
+<root>
+  <program name="prime_glitch" bits="15" tempo="60" memory="512">
+    <code>
+      <![CDATA[
 	  c = 16 * (1 + (q/1024)%8) + (q/(256 - 16*V0))%16;
 		r = q / c;
 		a = t / (32 - V4);
@@ -21,43 +22,61 @@
 		[0] = d | (w / 2 + z);
 		[1] = d | (w / 2 - z);
     ]]>
-  </code>
-  <interface w="640" h="380">
-    <control type="slider" name="h" target="V1" min="0" max="32" value="4">
-      <shape x="10" y="20" w="100" h="10"/>
-    </control>
-    <viz name="hviz" source="h" type="scatter" buffer="735">
-      <shape x="10" y="31" w="100" h="56"/>
-    </viz>
+    </code>
+    <interface w="640" h="380">
+      <control type="slider" name="h" target="V1" min="0" max="32" value="4">
+        <shape x="10" y="20" w="100" h="10"/>
+      </control>
+      <viz name="hviz" source="h" type="scatter" buffer="735">
+        <shape x="10" y="31" w="100" h="56"/>
+      </viz>
 
-    <control type="slider" name="s" target="V2" min="0" max="32" value="1">
-      <shape x="10" y="100" w="100" h="10"/>
-    </control>
-    <viz name="sviz" source="s" type="bars" buffer="8192">
-      <shape x="10" y="111" w="100" h="56"/>
-    </viz>
-    
-    <control type="slider" name="k" target="V3" min="0" max="8" value="1">
-      <shape x="10" y="180" w="100" h="10"/>
-    </control>
-    <viz name="kviz" source="k" type="bars" buffer="8192">
-      <shape x="10" y="191" w="100" h="56"/>
-    </viz>
-    
-    <control type="slider" name="c" target="V0" min="0" max="15" value="8">
-      <shape x="10" y="260" w="100" h="10"/>
-    </control>
-    <viz name="cviz" source="c" type="blocks" buffer="1" range="128">
-      <shape x="10" y="271" w="100" h="56"/>
-    </viz>
-    
-    <control type="slider" name="z" target="V4" min="0" max="31" value="31">
-      <shape x="120" y="20" w="510" h="10"/>
-    </control>
-    <viz name="zviz" source="z" type="bars" buffer="128" range="32768">
-      <shape x="120" y="31" w="510" h="216"/>
-    </viz>
-    
-  </interface>
-</program>
+      <control type="slider" name="s" target="V2" min="0" max="32" value="1">
+        <shape x="10" y="100" w="100" h="10"/>
+      </control>
+      <viz name="sviz" source="s" type="bars" buffer="8192">
+        <shape x="10" y="111" w="100" h="56"/>
+      </viz>
+
+      <control type="slider" name="k" target="V3" min="0" max="8" value="1">
+        <shape x="10" y="180" w="100" h="10"/>
+      </control>
+      <viz name="kviz" source="k" type="bars" buffer="8192">
+        <shape x="10" y="191" w="100" h="56"/>
+      </viz>
+
+      <control type="slider" name="c" target="V0" min="0" max="15" value="8">
+        <shape x="10" y="260" w="100" h="10"/>
+      </control>
+      <viz name="cviz" source="c" type="blocks" buffer="1" range="128">
+        <shape x="10" y="271" w="100" h="56"/>
+      </viz>
+
+      <control type="slider" name="z" target="V4" min="0" max="31" value="31">
+        <shape x="120" y="20" w="510" h="10"/>
+      </control>
+      <viz name="zviz" source="z" type="bars" buffer="128" range="32768">
+        <shape x="120" y="31" w="510" h="216"/>
+      </viz>
+
+    </interface>
+  </program>
+
+  <program name="little_ditty" bits="8" tempo="120" memory="512">
+    <code>
+      <![CDATA[
+        f = (f + (q/128)) % (2*(p+1));
+        a = ((t*f) - $(t * (f/2)));
+        b = t << (a % (8 * w)) / w;
+        c = #(t/2) << q%32;
+        s = (a | b ^ (a ^ ~b) & c);
+        p = p + (q%(128) ? 0 : 1);
+        p = p % 7;
+        [0] = s << p/2;
+        [1] = ~s >> p/2;
+        ]]>
+    </code>
+  </program>
+</root>
+
 

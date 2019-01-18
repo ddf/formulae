@@ -20,6 +20,9 @@ void ofApp::setup()
 	mOutput.setNumChannels(kOutputChannels);
 	mOutput.setSampleRate(kSampleRate);
 	mOutput.resize(kBufferSize*8);
+
+	mProgram = nullptr;
+	mState = kStateMenu;
 	
 	mSoundSettings.numOutputChannels = kOutputChannels;
 	mSoundSettings.sampleRate = kSampleRate;
@@ -30,70 +33,106 @@ void ofApp::setup()
 
 	mAppSettings.load("settings.xml");
 
-	ofXml programSettings = mAppSettings.getChild("program");
+	mMenuText = "Choose a program:\n\n";
+	int id = 1;
+	for (auto child : mAppSettings.getFirstChild().getChildren("program"))
+	{
+		mProgramList.push_back(child);
+		mMenuText += "\t" + std::to_string(id) + ". " + child.getAttribute("name").getValue() + "\n";
+		++id;
+	}
 
+	mMenu.setup(mMenuText, ofGetWidth(), 20);
+
+	ofAddListener(mProgramGUI.closePressedE, this, &ofApp::closeProgram);
+}
+
+//--------------------------------------------------------------
+void ofApp::loadProgram(ofXml programSettings)
+{
 	mCode = programSettings.getChild("code").getValue();
 	mTick = 0;
 	mTempo = programSettings.getAttribute("tempo").getUintValue();
 	mBitDepth = programSettings.getAttribute("bits").getUintValue();
-
-	Program::CompileError error;
-	int errorPosition;
-	mProgram = Program::Compile(mCode.c_str(), programSettings.getAttribute("memory").getUintValue(), error, errorPosition);
-
-	ofXml interfaceSettings = programSettings.getChild("interface");
-	const float ws = ofGetWidth() / interfaceSettings.getAttribute("w").getFloatValue();
-	const float hs = ofGetHeight() / interfaceSettings.getAttribute("h").getFloatValue();
 
 	ofxBaseGui::setDefaultBorderColor(ofColor(255));
 	ofxBaseGui::setDefaultBackgroundColor(0);
 	ofxBaseGui::setDefaultHeaderBackgroundColor(0);
 
 	std::string programName = programSettings.getAttribute("name").getValue();
-	mGUI.setup(programName, programName + ".xml", 0, 0);
-	mGUI.setHeaderBackgroundColor(0);
-	mGUI.setBackgroundColor(0);
+	mProgramGUI.setup(programName, programName + ".xml", 0, 0);
+	mProgramGUI.setHeaderBackgroundColor(0);
+	mProgramGUI.setBackgroundColor(0);
 
-	// setup all the controls
-	for (auto child : interfaceSettings.getChildren())
+	ofXml interfaceSettings = programSettings.getChild("interface");
+	if (interfaceSettings)
 	{
-		auto element = child.getName();
-		auto name = child.getAttribute("name").getValue();		
-		if (element == "control")
-		{
-			auto VC = mVC[child.getAttribute("target").getValue()];
-			VC->setMin(child.getAttribute("min").getUintValue());
-			VC->setMax(child.getAttribute("max").getUintValue());
-			VC->set(name, child.getAttribute("value").getUintValue());
+		const float ws = ofGetWidth() / interfaceSettings.getAttribute("w").getFloatValue();
+		const float hs = ofGetHeight() / interfaceSettings.getAttribute("h").getFloatValue();
 
-			mGUI.add(*VC);
-		}
-		else if (element == "viz")
+		// setup all the controls
+		for (auto child : interfaceSettings.getChildren())
 		{
-			auto source = child.getAttribute("source").getValue()[0];
-			auto vizType = kVizType[child.getAttribute("type").getValue()];
-			auto buffer = child.getAttribute("buffer").getUintValue();
-			auto rate = std::max(child.getAttribute("rate").getUintValue(), 1U);
-			auto range = child.getAttribute("range").getUintValue();
-			auto viz = new VarViz(name, source, vizType, buffer, rate, range);
-			mGUI.add(viz);
-			mVars.push_back(viz);
-		}
+			auto element = child.getName();
+			auto name = child.getAttribute("name").getValue();
+			if (element == "control")
+			{
+				auto VC = mVC[child.getAttribute("target").getValue()];
+				VC->setMin(child.getAttribute("min").getUintValue());
+				VC->setMax(child.getAttribute("max").getUintValue());
+				VC->set(name, child.getAttribute("value").getUintValue());
 
-		ofxBaseGui* ui = mGUI.getControl(name);
-		auto shape = child.getChild("shape");
-		if (ui != nullptr && shape)
-		{		
-			float x = shape.getAttribute("x").getFloatValue();
-			float y = shape.getAttribute("y").getFloatValue();
-			float w = shape.getAttribute("w").getFloatValue();
-			float h = shape.getAttribute("h").getFloatValue();
-		
-			ui->setShape(x*ws, y*hs, w*ws, h*hs);
+				mProgramGUI.add(*VC);
+			}
+			else if (element == "viz")
+			{
+				auto source = child.getAttribute("source").getValue()[0];
+				auto vizType = kVizType[child.getAttribute("type").getValue()];
+				auto buffer = child.getAttribute("buffer").getUintValue();
+				auto rate = std::max(child.getAttribute("rate").getUintValue(), 1U);
+				auto range = child.getAttribute("range").getUintValue();
+				auto viz = new VarViz(name, source, vizType, buffer, rate, range);
+				mProgramGUI.add(viz);
+				mVars.push_back(viz);
+			}
+
+			ofxBaseGui* ui = mProgramGUI.getControl(name);
+			auto shape = child.getChild("shape");
+			if (ui != nullptr && shape)
+			{
+				float x = shape.getAttribute("x").getFloatValue();
+				float y = shape.getAttribute("y").getFloatValue();
+				float w = shape.getAttribute("w").getFloatValue();
+				float h = shape.getAttribute("h").getFloatValue();
+
+				ui->setShape(x*ws, y*hs, w*ws, h*hs);
+			}
 		}
 	}
 
-	mGUI.setShape(0, 0, ofGetWidth(), ofGetHeight());
+	mProgramGUI.setShape(0, 0, ofGetWidth(), ofGetHeight());
+
+	Program::CompileError error;
+	int errorPosition;
+	mProgram = Program::Compile(mCode.c_str(), programSettings.getAttribute("memory").getUintValue(), error, errorPosition);
+
+	mState = kStateProgram;
+}
+
+void ofApp::closeProgram()
+{
+	if (mState == kStateProgram)
+	{
+		mMutex.lock();
+		delete mProgram;
+		mProgram = nullptr;
+		// clear the gui, this will delete all UI, including our mVars
+		mProgramGUI.teardown();
+		mVars.clear();
+		mMutex.unlock();
+
+		mState = kStateMenu;
+	}
 }
 
 //--------------------------------------------------------------
@@ -117,42 +156,48 @@ void ofApp::draw()
 	ofSetRectMode(OF_RECTMODE_CORNER);
 	ofFill();
 
-	mMutex.lock();
-
-	size_t outputBegin = mTick < frames ? 0 : (mTick - frames) % frames;	
-	for (size_t i = 0; i < frames; ++i)
+	if (mState == kStateProgram)
 	{
-		int x = w * (i%cols);
-		int y = h * (i / cols);
-		size_t f =  (outputBegin + i) % frames;
-		ofSetColor((mOutput.getSample(f, 0)+1)*127.5f);
-		ofDrawRectangle(x, y, w, h);
-		x += hw;
-		ofSetColor((mOutput.getSample(f, 1)+1)*127.5f);
-		ofDrawRectangle(x, y, w, h);
-	}
+		mMutex.lock();
+		size_t outputBegin = mTick < frames ? 0 : (mTick - frames) % frames;
+		for (size_t i = 0; i < frames; ++i)
+		{
+			int x = w * (i%cols);
+			int y = h * (i / cols);
+			size_t f = (outputBegin + i) % frames;
+			ofSetColor((mOutput.getSample(f, 0) + 1)*127.5f);
+			ofDrawRectangle(x, y, w, h);
+			x += hw;
+			ofSetColor((mOutput.getSample(f, 1) + 1)*127.5f);
+			ofDrawRectangle(x, y, w, h);
+		}
 
-	mGUI.draw();
-	mMutex.unlock();
+		mProgramGUI.draw();
+		mMutex.unlock();
+	}
+	else
+	{
+		mMenu.draw();
+	}
 }
 
 void ofApp::exit()
 {
-	mMutex.lock();
-	ofSoundStreamStop();
-	delete mProgram;
-	mProgram = nullptr;
-	for (int i = 0; i < mVars.size(); ++i)
-	{
-		delete mVars[i];
-	}
-	mVars.clear();
-	mMutex.unlock();
+	closeProgram();
+	ofSoundStreamClose();
 }
 
 //--------------------------------------------------------------
-void ofApp::keyPressed(int key){
-
+void ofApp::keyPressed(int key)
+{
+	if (mState == kStateMenu)
+	{
+		int pidx = key - '1';
+		if (pidx >= 0 && pidx < mProgramList.size())
+		{
+			loadProgram(mProgramList[pidx]);
+		}
+	}
 }
 
 //--------------------------------------------------------------
