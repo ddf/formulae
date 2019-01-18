@@ -37,7 +37,6 @@ private:
 
 	ofMutex mMutex;
 	ofSoundBuffer mOutput;
-	size_t mOutputBegin;
 
 	Program* mProgram;
 	std::string mCode;

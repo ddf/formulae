@@ -19,8 +19,7 @@ void ofApp::setup()
 
 	mOutput.setNumChannels(kOutputChannels);
 	mOutput.setSampleRate(kSampleRate);
-	mOutput.resize(ofGetWidth());
-	mOutputBegin = 0;
+	mOutput.resize(kBufferSize*8);
 	
 	mSoundSettings.numOutputChannels = kOutputChannels;
 	mSoundSettings.sampleRate = kSampleRate;
@@ -46,9 +45,14 @@ void ofApp::setup()
 	const float ws = ofGetWidth() / interfaceSettings.getAttribute("w").getFloatValue();
 	const float hs = ofGetHeight() / interfaceSettings.getAttribute("h").getFloatValue();
 
-	ofxBaseGui::setDefaultBorderColor(ofColor(250));
+	ofxBaseGui::setDefaultBorderColor(ofColor(255));
+	ofxBaseGui::setDefaultBackgroundColor(0);
+	ofxBaseGui::setDefaultHeaderBackgroundColor(0);
 
-	mGUI.setup(programSettings.getAttribute("name").getValue());
+	std::string programName = programSettings.getAttribute("name").getValue();
+	mGUI.setup(programName, programName + ".xml", 0, 0);
+	mGUI.setHeaderBackgroundColor(0);
+	mGUI.setBackgroundColor(0);
 
 	// setup all the controls
 	for (auto child : interfaceSettings.getChildren())
@@ -102,7 +106,32 @@ void ofApp::draw()
 {
 	ofBackground(0);
 
+	const size_t frames = mOutput.size() / 2;
+	const int cols = 32;
+	const int rows = frames / cols;
+	const float hw = ofGetWidth() / 2;
+	const float hh = (float)ofGetHeight() / 2;
+	const float w = hw / cols;	
+	const float h = hh * 2 / rows;
+
+	ofSetRectMode(OF_RECTMODE_CORNER);
+	ofFill();
+
 	mMutex.lock();
+
+	size_t outputBegin = mTick < frames ? 0 : (mTick - frames) % frames;	
+	for (size_t i = 0; i < frames; ++i)
+	{
+		int x = w * (i%cols);
+		int y = h * (i / cols);
+		size_t f =  (outputBegin + i) % frames;
+		ofSetColor((mOutput.getSample(f, 0)+1)*127.5f);
+		ofDrawRectangle(x, y, w, h);
+		x += hw;
+		ofSetColor((mOutput.getSample(f, 1)+1)*127.5f);
+		ofDrawRectangle(x, y, w, h);
+	}
+
 	mGUI.draw();
 	mMutex.unlock();
 }
@@ -173,6 +202,9 @@ void ofApp::gotMessage(ofMessage msg){
 
 void ofApp::audioOut(ofSoundBuffer& output)
 {
+	const size_t bufferSize = output.size();
+	const size_t nChannels = output.getNumChannels();
+
 	mMutex.lock();
 	if (mProgram != nullptr)
 	{		
@@ -184,9 +216,7 @@ void ofApp::audioOut(ofSoundBuffer& output)
 		mProgram->Set('~', (Program::Value)mSoundSettings.sampleRate);
 
 		Program::Value results[kOutputChannels];
-		Program::RuntimeError error;
-		const size_t bufferSize = output.size();
-		const size_t nChannels = output.getNumChannels();
+		Program::RuntimeError error;		
 		for (size_t f = 0; f < bufferSize; f += nChannels)
 		{
 			mProgram->Set('t', mTick);
@@ -213,15 +243,15 @@ void ofApp::audioOut(ofSoundBuffer& output)
 			}
 			++mTick;
 		}
-		
-		mOutputBegin = (mTick*nChannels - bufferSize) % mOutput.size();
-		const size_t outSize = mOutput.size();
-		for (size_t f = 0; f < bufferSize; f += nChannels)
-		{
-			size_t i = (mOutputBegin + f) % outSize;
-			mOutput[i] = output[f];
-			mOutput[i + 1] = output[f+1];
-		}	
+	}
+
+	size_t writeBegin = (mTick*nChannels - bufferSize) % mOutput.size();
+	const size_t outSize = mOutput.size();
+	for (size_t f = 0; f < bufferSize; f += nChannels)
+	{
+		size_t i = (writeBegin + f) % outSize;
+		mOutput[i] = output[f];
+		mOutput[i + 1] = output[f + 1];
 	}
 	mMutex.unlock();
 }
