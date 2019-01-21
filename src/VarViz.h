@@ -24,6 +24,7 @@ public:
 	VarViz* setup(const std::string& guiName, const char varName, const VarVizType vizType = kVizTypeWave, const size_t bufferSize = 1024, const size_t sampleRate = 1, const Program::Value range = 0);
 
 	const char getVar() const { return mVar; }
+	void setColumns(size_t cols) { mColumns = cols; }
 
 	void push(Program::Value value);
 
@@ -53,6 +54,7 @@ private:
 	VarVizType mVizType;
 	size_t mSize;
 	size_t mSampleRate;
+	size_t mColumns;
 	Program::Value mRange;
 	Program::Value mMax;
 	std::vector<Program::Value> mBuffer;

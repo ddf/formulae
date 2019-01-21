@@ -92,6 +92,11 @@ void ofApp::loadProgram(ofXml programSettings)
 				auto rate = std::max(child.getAttribute("rate").getUintValue(), 1U);
 				auto range = child.getAttribute("range").getUintValue();
 				auto viz = new VarViz(name, source, vizType, buffer, rate, range);
+				auto columns = child.getAttribute("columns");
+				if (columns)
+				{
+					viz->setColumns(std::max(columns.getUintValue(), 1U));
+				}
 				mProgramGUI.add(viz);
 				mVars.push_back(viz);
 			}

@@ -24,6 +24,7 @@
     ]]>
     </code>
     <interface w="640" h="380">
+      
       <control type="slider" name="h" target="V1" min="0" max="32" value="4">
         <shape x="10" y="20" w="100" h="10"/>
       </control>
@@ -62,7 +63,7 @@
     </interface>
   </program>
 
-  <program name="little_ditty" bits="8" tempo="120" memory="512">
+  <program name="uncertain_cycles" bits="8" tempo="120" memory="512">
     <code>
       <![CDATA[
         v = 8*V0;
@@ -73,52 +74,44 @@
         v = 4*V3;
         c = (#(t/2) << q%v) % w;
         s = (a | b ^ (a ^ ~b) & c);
-        v = 16*V4;
-        // need to fix this so that p steps only once every v q's
-        p = p + (q%v ? 0 : 1);
-        p = p % 13;
+        v = 16*V4;      
+        p = p + (q%v < 1 & r<q ? q : 0);
+        p = p % 11;
+        r = q;
         [0] = s << p/2;
         [1] = ~s >> p/2;
         ]]>
     </code>
     <interface w="640" h="380">
+      
+      <control type="slider" name="p" target="V4" min="1" max="32" value="16">
+        <shape x="10" y="20" w="100" h="10"/>
+      </control>
+      <viz name="pviz" source="p" type="blocks" buffer="1" range="11" columns="2">
+        <shape x="10" y="31" w="100" h="56"/>
+      </viz>
+      
       <control type="slider" name="a" target="V0" min="1" max="16" value="16">
-        <shape x="10" y="20" w="620" h="10"/>
+        <shape x="120" y="20" w="500" h="10"/>
       </control>
       <viz name="aviz" source="a" type="bars" buffer="256" range="256">
-        <shape x="10" y="31" w="620" h="56"/>
+        <shape x="120" y="31" w="500" h="90"/>
       </viz>
   
       <control type="slider" name="b" target="V1" min="1" max="32" value="8">
-        <shape x="10" y="100" w="620" h="10"/>
+        <shape x="120" y="134" w="500" h="10"/>
       </control>
       <viz name="bviz" source="b" type="wave" buffer="128" rate="16" range="256">
-        <shape x="10" y="111" w="620" h="56"/>
+        <shape x="120" y="145" w="500" h="90"/>
       </viz>
 
       <control type="slider" name="c" target="V3" min="1" max="16" value="8">
-        <shape x="10" y="180" w="620" h="10"/>
+        <shape x="120" y="248" w="500" h="10"/>
       </control>
       <viz name="cviz" source="c" type="bars" buffer="2048">
-        <shape x="10" y="191" w="620" h="56"/>
+        <shape x="120" y="259" w="500" h="90"/>
       </viz>
-
-      <control type="slider" name="p" target="V4" min="1" max="32" value="16">
-        <shape x="10" y="260" w="620" h="10"/>
-      </control>
-      <viz name="pviz" source="p" type="blocks" buffer="1" range="13">
-        <shape x="10" y="271" w="620" h="56"/>
-      </viz>
-
-      <!--
-      <control type="slider" name="z" target="V4" min="0" max="31" value="31">
-        <shape x="120" y="20" w="510" h="10"/>
-      </control>
-      <viz name="zviz" source="z" type="bars" buffer="128" range="32768">
-        <shape x="120" y="31" w="510" h="216"/>
-      </viz>
-      -->
-
+      
     </interface>
   </program>
 </root>

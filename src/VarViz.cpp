@@ -13,6 +13,7 @@ VarViz* VarViz::setup(const std::string& guiName, char varName, const VarVizType
 	mHead = 0;
 	mSize = bufferSize;
 	mSampleRate = sampleRate;
+	mColumns = 16;
 	mRange = range;
 	mCount = 1;
 	mMax = std::max(kMin, range);
@@ -115,15 +116,15 @@ void VarViz::generateDraw()
 
 		case kVizTypeBlocks:
 		{
-			float step = w / 16.0f;
+			float step = w / mColumns;
 			float radius = step * 0.85f * 0.5f;
 			pos.x += step / 2;
 			pos.y += step / 2;
 
 			for (int i = 0; i < mRange; ++i)
 			{
-				float cx = pos.x + (i % 16) * step;
-				float cy = pos.y + (i / 16) * step;
+				float cx = pos.x + (i % mColumns) * step;
+				float cy = pos.y + (i / mColumns) * step;
 				mBack.rectangle(cx - radius, cy - radius, radius * 2, radius * 2);
 			}
 
@@ -131,8 +132,8 @@ void VarViz::generateDraw()
 			for (int i = 0; i < mSize; ++i)
 			{
 				auto s = mBuffer[(mHead + i) % mSize];
-				float cx = pos.x + (s % 16) * step;
-				float cy = pos.y + (s / 16) * step;
+				float cx = pos.x + (s % mColumns) * step;
+				float cy = pos.y + (s / mColumns) * step;
 				mViz.rectangle(cx - radius, cy - radius, radius * 2, radius * 2);
 			}
 		}
