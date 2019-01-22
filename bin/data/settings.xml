@@ -211,27 +211,27 @@
       ]]>
     </code>
 
-    <interface w="640" h="380">
+    <interface w="640" h="360">
+
+      <control type="slider" name="k" target="V3" min="1" max="8" value="8">
+        <shape x="60" y="15" w="100" h="10"/>
+      </control>
+      <viz name="kviz" source="k" type="bars" buffer="256" rate="8">
+        <shape x="60" y="26" w="100" h="325"/>
+      </viz>
 
       <control type="slider" name="h" target="V1" min="1" max="8" value="4">
-        <shape x="10" y="20" w="600" h="10"/>
+        <shape x="270" y="15" w="100" h="10"/>
       </control>
-      <viz name="hviz" source="h" type="bars" buffer="8192">
-        <shape x="10" y="31" w="600" h="56"/>
+      <viz name="hviz" source="h" type="bars" buffer="256" rate="8">
+        <shape x="270" y="26" w="100" h="325"/>
       </viz>
 
       <control type="slider" name="s" target="V2" min="1" max="8" value="8">
-        <shape x="10" y="100" w="600" h="10"/>
+        <shape x="480" y="15" w="100" h="10"/>
       </control>
-      <viz name="sviz" source="s" type="bars" buffer="8192">
-        <shape x="10" y="111" w="600" h="56"/>
-      </viz>
-
-      <control type="slider" name="k" target="V3" min="1" max="8" value="8">
-        <shape x="10" y="180" w="600" h="10"/>
-      </control>
-      <viz name="kviz" source="k" type="bars" buffer="8192">
-        <shape x="10" y="191" w="600" h="56"/>
+      <viz name="sviz" source="s" type="bars" buffer="256" rate="8">
+        <shape x="480" y="26" w="100" h="325"/>
       </viz>
       
     </interface>

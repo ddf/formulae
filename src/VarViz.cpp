@@ -88,15 +88,30 @@ void VarViz::generateDraw()
 		break;
 
 		case kVizTypeBars:
-		{
-			const float cy = pos.y + h * 0.5f;
-			for (int i = 0; i < mSize; ++i)
+		{			
+			if (w >= h)
 			{
-				int s = (mHead + i) % mSize;
-				float bx = pos.x + ofMap(i, 0, mSize - 1, w, 0);
-				float bh = h * ((float)mBuffer[s] / mMax) * 0.5f;
-				mViz.moveTo(bx, cy + bh);
-				mViz.lineTo(bx, cy - bh);
+				const float cy = pos.y + h * 0.5f;
+				for (int i = 0; i < mSize; ++i)
+				{
+					int s = (mHead + i) % mSize;
+					float bx = pos.x + ofMap(i, 0, mSize - 1, w, 0);
+					float bh = h * ((float)mBuffer[s] / mMax) * 0.5f;
+					mViz.moveTo(bx, cy + bh);
+					mViz.lineTo(bx, cy - bh);
+				}
+			}
+			else
+			{
+				const float cx = pos.x + w * 0.5f;
+				for (int i = 0; i < mSize; ++i)
+				{
+					int s = (mHead + i) % mSize;
+					float by = pos.y + ofMap(i, 0, mSize - 1, h, 0);
+					float bw = w * ((float)mBuffer[s] / mMax) * 0.5f;
+					mViz.moveTo(cx + bw, by);
+					mViz.lineTo(cx - bw, by);
+				}
 			}
 		}
 		break;
