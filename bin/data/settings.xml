@@ -179,7 +179,7 @@
     </interface>
   </program>
 
-  <program name="butter_beat" bits="8" tempo="15" memory="64">
+  <program name="improper/fractions" bits="8" tempo="15" memory="64">
     <code>
       <![CDATA[
       v = V1*256;
@@ -238,7 +238,7 @@
     
   </program>
 
-  <program name="trance_form" bits="8" tempo="32" memory="64">
+  <program name="trance+form" bits="8" tempo="32" memory="64">
     <code>
       <![CDATA[
       p  = p*(t>0); // initialize p to 0 at the very beginning
