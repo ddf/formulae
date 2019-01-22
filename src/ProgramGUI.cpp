@@ -49,7 +49,7 @@ void ProgramGUI::sizeChangedCB()
 void ProgramGUI::generateDraw()
 {
 	border.clear();
-	border.setFillColor(ofColor(thisBorderColor, 180));
+	border.setFillColor(ofColor(thisBackgroundColor, 180));
 	border.setFilled(true);
 	border.rectangle(b.x, b.y + spacingNextElement, b.width + 1, b.height);
 
