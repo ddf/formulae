@@ -179,41 +179,41 @@
     </interface>
   </program>
 
-  <program name="butter_beat" bits="8" tempo="60" memory="64">
+  <program name="butter_beat" bits="8" tempo="15" memory="64">
     <code>
       <![CDATA[
-      //j = j + (F6 - F5*(q%16));
-      j = j + 1;
-      
       v = V1*256;
       c = (q/v)%7 + 1;
+      m = (q/64);
+      
+      j = j + $(m*F7) - $(m*F5);
       f = 16 >> c%5;
-      h = #(j*f)%w << c >> (q*c);
+      h = $(j*f)%w << 1 >> (q*c);
            
-      u = V3*c*4;
-      v = V3*c*3; // (V3*2 + 4) * (u+1);
-      a = #(j) << 1 >> (q%u);
-      b = #(j*2) << 1 >> (q%v);
+      c = (9 - c) / 4;
+      u = V3*4 << c;
+      v = V3*3 << c;
+      a = $(j/4) << 1 >> (q%u);
+      b = $(j/2) << 1 >> (q%v);
       k = a | b;
             
-      u = V2*c*6;
-      v = V2*c*5; //  * (u/2 + 1);
-      a = #(j) << 1 >> (q%u);
-      b = #(j*2) << 1 >> (q%v);
+      u = V2*6 << c;
+      v = V2*5 << c;
+      a = $(j/4) << 1 >> (q%u);
+      b = $(j/2) << 1 >> (q%v);
       s = a | b;                 
             
-      // steady kick to give some context
-      d = #(j/2) << 3 >> q;
+      d = $(j/8 + $(j/2048)) >> 2;
       d = d | h;
       
-      [0] = d | k;
-      [1] = d | s;
+      [0] = w/2 + (d | k)/4;
+      [1] = w/2 + (d | s)/4;
       ]]>
     </code>
 
     <interface w="640" h="380">
 
-      <control type="slider" name="h" target="V1" min="1" max="8" value="8">
+      <control type="slider" name="h" target="V1" min="1" max="8" value="4">
         <shape x="10" y="20" w="600" h="10"/>
       </control>
       <viz name="hviz" source="h" type="bars" buffer="8192">
