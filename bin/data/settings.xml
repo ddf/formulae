@@ -182,51 +182,52 @@
   <program name="butter_beat" bits="8" tempo="60" memory="64">
     <code>
       <![CDATA[
-      j = j + (F12 - F10*(q%16));
+      //j = j + (F6 - F5*(q%16));
+      j = j + 1;
+      
+      v = V1*256;
+      c = (q/v)%7 + 1;
+      f = 16 >> c%5;
+      h = #(j*f)%w << c >> (q*c);
            
-      k = #(j) << 3;
-      k = k >> (q%48) | $(j*3) << 3 >> (q%(16*49));
-      
-      s = (q/64)%2 ? ($(j*4) | Rw) << 2 : 0;
-      s = s >> (q%64) | (s*2) >> (q%(16*37));
-      
-      a = 2 * ((q/1024)%3);
-      h = Rw << 2 >> a >> (q*(4+a));
-      
-      y = ~y + k*k*k;
-      z = z + s;
-      x = y * $(z);
-      
-      // what used to be a drum beat
-      o = (k | s | h) & x;
-      
-      f = t*(1 + (q/3)%4);
+      u = V3*c*4;
+      v = V3*c*3; // (V3*2 + 4) * (u+1);
+      a = #(j) << 1 >> (q%u);
+      b = #(j*2) << 1 >> (q%v);
+      k = a | b;
+            
+      u = V2*c*6;
+      v = V2*c*5; //  * (u/2 + 1);
+      a = #(j) << 1 >> (q%u);
+      b = #(j*2) << 1 >> (q%v);
+      s = a | b;                 
             
       // steady kick to give some context
-      d = $(t/2) << 1 >> q; 
+      d = #(j/2) << 3 >> q;
+      d = d | h;
       
-      [0] = (o & f) | d;
-      [1] = (o & ~f) | d;
+      [0] = d | k;
+      [1] = d | s;
       ]]>
     </code>
 
     <interface w="640" h="380">
 
-      <control type="slider" name="h" target="V1" min="0" max="32" value="4">
+      <control type="slider" name="h" target="V1" min="1" max="8" value="8">
         <shape x="10" y="20" w="600" h="10"/>
       </control>
       <viz name="hviz" source="h" type="bars" buffer="8192">
         <shape x="10" y="31" w="600" h="56"/>
       </viz>
 
-      <control type="slider" name="s" target="V2" min="0" max="32" value="1">
+      <control type="slider" name="s" target="V2" min="1" max="8" value="8">
         <shape x="10" y="100" w="600" h="10"/>
       </control>
       <viz name="sviz" source="s" type="bars" buffer="8192">
         <shape x="10" y="111" w="600" h="56"/>
       </viz>
 
-      <control type="slider" name="k" target="V3" min="0" max="8" value="1">
+      <control type="slider" name="k" target="V3" min="1" max="8" value="8">
         <shape x="10" y="180" w="600" h="10"/>
       </control>
       <viz name="kviz" source="k" type="bars" buffer="8192">
