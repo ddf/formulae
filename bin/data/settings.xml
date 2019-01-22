@@ -238,7 +238,7 @@
     
   </program>
 
-  <program name="bit_cycle" bits="8" tempo="32" memory="64">
+  <program name="trance_form" bits="8" tempo="32" memory="64">
     <code>
       <![CDATA[
       p  = p*(t>0); // initialize p to 0 at the very beginning
@@ -252,11 +252,12 @@
       @6 = (q/16)%4;
 
       o = (t>>@6) * @5 * 2;
-      a = t*(@5+@0) >> (V1+@1);
-      b = t - (V2+@2)*128;
-      c = b*64 | b*(V3+@3)>>(V4+@4);
+      a = t*(@5+@0) >> @1;
+      b = t - @2*128;
+      c = b*64 | b*@3>>@4;
       p = (o | a) ^ c | p<<12;
       s = ((t/4 % w) * @5) / 32 * (q%16<8);
+      
       z = @5/8 % 2;
 
       [0] = (w/2 + p<<z) | (o*z) | s;
@@ -264,32 +265,35 @@
       ]]>
     </code>
     <interface w="640" h="360">
+      <!--<viz name="yviz" source="y" type="blocks" buffer="1" range="1024">
+        <shape x="10" y ="31" w="80" h="300"/>
+      </viz>-->
 
-      <control type="slider" name="a" target="V1" min="0" max="8" value="1">
+      <!--<control type="slider" name="a" target="V1" min="0" max="8" value="1">
         <shape x="10" y="20" w="620" h="10"/>
-      </control>
+      </control>-->
       <viz name="aviz" source="a" type="bars" buffer="512" range="256">
         <shape x="10" y="31" w="620" h="56"/>
       </viz>
 
-      <control type="slider" name="b" target="V2" min="0" max="8" value="0">
+      <!--<control type="slider" name="b" target="V2" min="0" max="8" value="0">
         <shape x="10" y="100" w="620" h="10"/>
-      </control>
-      <viz name="bviz" source="b" type="bars" buffer="512" range="256">
+      </control>-->
+      <viz name="bviz" source="c" type="bars" buffer="512" range="256">
         <shape x="10" y="111" w="620" h="56"/>
       </viz>
 
-      <control type="slider" name="c" target="V3" min="0" max="8" value="0">
+      <!--<control type="slider" name="c" target="V3" min="0" max="8" value="0">
         <shape x="10" y="180" w="620" h="10"/>
-      </control>
-      <viz name="cviz" source="c" type="bars" buffer="512" range="256">
+      </control>-->
+      <viz name="cviz" source="o" type="bars" buffer="512" range="256">
         <shape x="10" y="191" w="620" h="56"/>
       </viz>
 
-      <control type="slider" name="p" target="V4" min="0" max="8" value="0">
+      <!--<control type="slider" name="p" target="V4" min="0" max="8" value="0">
         <shape x="10" y="260" w="620" h="10"/>
-      </control>
-      <viz name="pviz" source="p" type="bars" buffer="512" range="256">
+      </control>-->
+      <viz name="pviz" source="s" type="bars" buffer="512" range="256">
         <shape x="10" y="271" w="620" h="56"/>
       </viz>
 
