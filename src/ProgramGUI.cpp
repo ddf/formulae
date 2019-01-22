@@ -22,6 +22,8 @@ void ProgramGUI::setup(const std::string& collectionName /* = "" */, const std::
 	ofxGuiGroup::setup(collectionName, filename, x, y);
 	spacing = 0;
 	spacingNextElement = -1;
+	mW = b.width;
+	mH = b.height;
 }
 
 void ProgramGUI::teardown()
@@ -35,6 +37,38 @@ void ProgramGUI::teardown()
 	}
 	collection.clear();
 	unregisterMouseEvents();
+}
+
+void ProgramGUI::setSize(float w, float h)
+{	
+	b.width = w;
+	b.height = h;
+	if (!collection.empty())
+	{
+		float rw = w / mW;
+		float rh = h / mH;
+		auto pos = getPosition();
+		for (auto ui : collection)
+		{
+			ofPoint dp = ui->getPosition() - pos;
+			ui->setShape(pos.x + rw*dp.x, pos.y + rh*dp.y, rw*ui->getWidth(), rh*ui->getHeight());
+		}
+	}
+	mW = w;
+	mH = h;
+	sizeChangedCB();
+}
+
+void ProgramGUI::setShape(ofRectangle r)
+{
+	setPosition(r.x, r.y);
+	setSize(r.width, r.height);
+}
+
+void ProgramGUI::setShape(float x, float y, float w, float h)
+{
+	setPosition(x, y);
+	setSize(w, h);
 }
 
 void ProgramGUI::sizeChangedCB()
@@ -67,6 +101,13 @@ void ProgramGUI::generateDraw()
 	}
 
 	textMesh.append(getTextMesh("x", b.width - textPadding - 8 + b.x, header / 2 + 3 + b.y + spacingNextElement));
+}
+
+void ProgramGUI::onMaximize()
+{
+	// maximize of ofxGuiGroup calculates height based on contents, but we want to just return to whatever was explicitly set.
+	b.width = mW;
+	b.height = mH;
 }
 
 bool ProgramGUI::setValue(float mx, float my, bool bCheck) {

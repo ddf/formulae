@@ -43,6 +43,7 @@ void ofApp::setup()
 	}
 
 	mMenu.setup(mMenuText, ofGetWidth(), 20);
+	mMenu.setPosition(10, 10);
 
 	ofAddListener(mProgramGUI.closePressedE, this, &ofApp::closeProgram);
 }
@@ -58,17 +59,22 @@ void ofApp::loadProgram(ofXml programSettings)
 	ofxBaseGui::setDefaultBorderColor(ofColor(255));
 	ofxBaseGui::setDefaultBackgroundColor(0);
 	ofxBaseGui::setDefaultHeaderBackgroundColor(0);
+	ofxBaseGui::setDefaultHeight(40);
+	ofxBaseGui::setDefaultTextPadding(10);
 
 	std::string programName = programSettings.getAttribute("name").getValue();
 	mProgramGUI.setup(programName, programName + ".xml", 0, 0);
+	mProgramGUI.setShape(0, 0, ofGetWidth(), ofGetHeight());
 	mProgramGUI.setHeaderBackgroundColor(0);
 	mProgramGUI.setBackgroundColor(0);
 
 	ofXml interfaceSettings = programSettings.getChild("interface");
 	if (interfaceSettings)
 	{
-		const float ws = ofGetWidth() / interfaceSettings.getAttribute("w").getFloatValue();
-		const float hs = ofGetHeight() / interfaceSettings.getAttribute("h").getFloatValue();
+		// set size to reference size for initial placement
+		const float w = interfaceSettings.getAttribute("w").getFloatValue();
+		const float h = interfaceSettings.getAttribute("h").getFloatValue();
+		mProgramGUI.setSize(w, h);
 
 		// setup all the controls
 		for (auto child : interfaceSettings.getChildren())
@@ -110,12 +116,18 @@ void ofApp::loadProgram(ofXml programSettings)
 				float w = shape.getAttribute("w").getFloatValue();
 				float h = shape.getAttribute("h").getFloatValue();
 
-				ui->setShape(x*ws, y*hs, w*ws, h*hs);
+				ui->setShape(x, y, w, h);
 			}
 		}		
+
+		// expand to fullscreen
+		mProgramGUI.setSize(ofGetWidth(), ofGetHeight());
+		mProgramGUI.maximize();
+	}	
+	else
+	{
+		mProgramGUI.minimize();
 	}
-	
-	mProgramGUI.setShape(0, 0, ofGetWidth(), ofGetHeight());
 
 	Program::CompileError error;
 	int errorPosition;
@@ -248,8 +260,12 @@ void ofApp::mouseExited(int x, int y){
 }
 
 //--------------------------------------------------------------
-void ofApp::windowResized(int w, int h){
-
+void ofApp::windowResized(int w, int h)
+{
+	if (mState == kStateProgram)
+	{
+		mProgramGUI.setSize(w, h);
+	}
 }
 
 //--------------------------------------------------------------
