@@ -203,6 +203,13 @@ void ofApp::keyPressed(int key)
 			loadProgram(mProgramList[pidx]);
 		}
 	}
+	else if (mState == kStateProgram)
+	{
+		if (key == 'q')
+		{
+			closeProgram();
+		}
+	}
 }
 
 //--------------------------------------------------------------
