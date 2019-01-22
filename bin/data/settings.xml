@@ -150,31 +150,31 @@
     </code>
     <interface w="640" h="380">
       <control type="slider" name="b" target="V0" min="1" max="16" value="8">
-        <shape x="10" y="20" w="600" h="10"/>
+        <shape x="10" y="20" w="620" h="10"/>
       </control>
       <viz name="bviz" source="b" type="bars" buffer="128" rate="64" range="128">
-        <shape x="10" y="31" w="600" h="56"/>
+        <shape x="10" y="31" w="620" h="56"/>
       </viz>
 
       <control type="slider" name="s" target="V1" min="0" max="15" value="10">
-        <shape x="10" y="100" w="600" h="10"/>
+        <shape x="10" y="100" w="620" h="10"/>
       </control>
       <viz name="sviz" source="s" type="bars" buffer="256" range="256">
-        <shape x="10" y="111" w="600" h="56"/>
+        <shape x="10" y="111" w="620" h="56"/>
       </viz>
 
       <control type="slider" name="k" target="V2" min="0" max="8" value="1">
-        <shape x="10" y="180" w="250" h="10"/>
+        <shape x="40" y="180" w="250" h="10"/>
       </control>
       <viz name="kviz" source="k" type="bars" buffer="4096">
-        <shape x="10" y="191" w="250" h="56"/>
+        <shape x="40" y="191" w="250" h="56"/>
       </viz>
 
       <control type="slider" name="h" target="V3" min="0" max="4" value="1">
-        <shape x="330" y="180" w="250" h="10"/>
+        <shape x="350" y="180" w="250" h="10"/>
       </control>
       <viz name="hviz" source="h" type="bars" buffer="8192">
-        <shape x="330" y="191" w="250" h="56"/>
+        <shape x="350" y="191" w="250" h="56"/>
       </viz>
     </interface>
   </program>
