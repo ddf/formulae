@@ -5,6 +5,7 @@ const size_t kSampleRate = 44100;
 const size_t kBufferSize = 512;
 
 std::map<std::string, VarVizType> kVizType = {
+	{ "value", kVizTypeValue },
 	{ "wave", kVizTypeWave },
 	{ "bars", kVizTypeBars },
 	{ "blocks", kVizTypeBlocks },
@@ -55,6 +56,7 @@ void ofApp::loadProgram(ofXml programSettings)
 	mTick = 0;
 	mTempo = programSettings.getAttribute("tempo").getUintValue();
 	mBitDepth = programSettings.getAttribute("bits").getUintValue();
+	Program::Value memorySize = programSettings.getAttribute("memory").getUintValue();
 
 	ofxBaseGui::setDefaultBorderColor(ofColor(255));
 	ofxBaseGui::setDefaultBackgroundColor(0);
@@ -92,19 +94,33 @@ void ofApp::loadProgram(ofXml programSettings)
 			}
 			else if (element == "viz")
 			{
-				auto source = child.getAttribute("source").getValue()[0];
-				auto vizType = kVizType[child.getAttribute("type").getValue()];
-				auto buffer = child.getAttribute("buffer").getUintValue();
-				auto rate = std::max(child.getAttribute("rate").getUintValue(), 1U);
-				auto range = child.getAttribute("range").getUintValue();
-				auto viz = new VarViz(name, source, vizType, buffer, rate, range);
-				auto columns = child.getAttribute("columns");
-				if (columns)
+				auto source = child.getAttribute("source").getValue();
+				if (!source.empty())
 				{
-					viz->setColumns(std::max(columns.getUintValue(), 1U));
+					Program::Value var = 0;
+					if (source[0] == '@')
+					{
+						source = source.substr(1);
+						var = std::stoull(source);
+					}
+					else
+					{
+						var = Program::GetAddress(source[0], memorySize);
+					}
+					auto vizType = kVizType[child.getAttribute("type").getValue()];
+					auto buffer = child.getAttribute("buffer").getUintValue();
+					auto rate = std::max(child.getAttribute("rate").getUintValue(), 1U);
+					auto range = child.getAttribute("range").getUintValue();
+					auto viz = new VarViz(name, var, vizType, buffer, rate, range);
+					auto columns = child.getAttribute("columns");
+					if (columns)
+					{
+						viz->setColumns(std::max(columns.getUintValue(), 1U));
+					}
+
+					mProgramGUI.add(viz);
+					mVars.push_back(viz);
 				}
-				mProgramGUI.add(viz);
-				mVars.push_back(viz);
 			}
 
 			ofxBaseGui* ui = mProgramGUI.getControl(name);
@@ -131,7 +147,7 @@ void ofApp::loadProgram(ofXml programSettings)
 
 	Program::CompileError error;
 	int errorPosition;
-	mProgram = Program::Compile(mCode.c_str(), programSettings.getAttribute("memory").getUintValue(), error, errorPosition);
+	mProgram = Program::Compile(mCode.c_str(), memorySize, error, errorPosition);
 
 	mState = kStateProgram;
 }
@@ -311,8 +327,7 @@ void ofApp::audioOut(ofSoundBuffer& output)
 			for (size_t i = 0; i < mVars.size(); ++i)
 			{
 				auto  var = mVars[i];
-				var->push(mProgram->Get(var->getVar()));
-
+				var->push(mProgram->Peek(var->getVar()));
 			}
 			++mTick;
 		}

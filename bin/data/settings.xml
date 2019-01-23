@@ -265,36 +265,65 @@
       ]]>
     </code>
     <interface w="640" h="360">
-      <!--<viz name="yviz" source="y" type="blocks" buffer="1" range="1024">
-        <shape x="10" y ="31" w="80" h="300"/>
-      </viz>-->
+      
+      <viz name="evolution" source="@5" type="value">
+        <shape x="280" y ="30" w="80" h="10"/>
+      </viz>
+      
+      <viz name="@0" source="@0" type="blocks" buffer="1" range="7" columns="7">
+        <shape x="280" y ="41" w="80" h="10"/>
+      </viz>
+      
+      <viz name="@1" source="@1" type="blocks" buffer="1" range="7" columns="7">
+        <shape x="280" y ="53" w="80" h="10"/>
+      </viz>
+      
+      <viz name="@2" source="@2" type="blocks" buffer="1" range="7" columns="7">
+        <shape x="280" y ="65" w="80" h="10"/>
+      </viz>
+      
+      <viz name="@3" source="@3" type="blocks" buffer="1" range="7" columns="7">
+        <shape x="280" y ="77" w="80" h="10"/>
+      </viz>
+      
+      <viz name="@4" source="@4" type="blocks" buffer="1" range="7" columns="7">
+        <shape x="280" y ="89" w="80" h="10"/>
+      </viz>
+      
+      <viz name="@6" source="@6" type="blocks" buffer="1" range="7" columns="7">
+        <shape x="280" y ="101" w="80" h="10"/>
+      </viz>
+      
+      <viz name="z" source="z" type="blocks" buffer="1" range="2" columns="2">
+        <shape x="280" y ="113" w="80" h="10"/>
+      </viz>     
 
       <!--<control type="slider" name="a" target="V1" min="0" max="8" value="1">
         <shape x="10" y="20" w="620" h="10"/>
       </control>-->
-      <viz name="aviz" source="a" type="bars" buffer="512" range="256">
-        <shape x="10" y="31" w="620" h="56"/>
+      <viz name="aviz" source="a" type="bars" buffer="256" range="256">
+        <shape x="20" y="30" w="240" h="120"/>
       </viz>
 
       <!--<control type="slider" name="b" target="V2" min="0" max="8" value="0">
         <shape x="10" y="100" w="620" h="10"/>
       </control>-->
-      <viz name="bviz" source="c" type="bars" buffer="512" range="256">
-        <shape x="10" y="111" w="620" h="56"/>
+      <viz name="bviz" source="c" type="bars" buffer="256" range="256">
+        <shape x="380" y="30" w="240" h="120"/>
       </viz>
 
       <!--<control type="slider" name="c" target="V3" min="0" max="8" value="0">
         <shape x="10" y="180" w="620" h="10"/>
       </control>-->
       <viz name="cviz" source="o" type="bars" buffer="512" range="256">
-        <shape x="10" y="191" w="620" h="56"/>
+        <shape x="20" y="168" w="600" h="80"/>
       </viz>
 
       <!--<control type="slider" name="p" target="V4" min="0" max="8" value="0">
         <shape x="10" y="260" w="620" h="10"/>
       </control>-->
-      <viz name="pviz" source="s" type="bars" buffer="512" range="256">
-        <shape x="10" y="271" w="620" h="56"/>
+      <viz name="pviz" source="s" type="bars" buffer="1024" range="256">
+        <shape x="20" y="264" w="600" h="80"/>
       </viz>
 
     </interface>

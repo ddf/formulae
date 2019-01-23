@@ -6,12 +6,12 @@
 
 const Program::Value kMin = 1;
 
-VarViz* VarViz::setup(const std::string& guiName, char varName, const VarVizType vizType, const size_t bufferSize, const size_t sampleRate, const Program::Value range)
+VarViz* VarViz::setup(const std::string& guiName, Program::Value var, const VarVizType vizType, const size_t bufferSize, const size_t sampleRate, const Program::Value range)
 {
-	mVar = varName;
+	mVar = var;
 	mVizType = vizType;
 	mHead = 0;
-	mSize = bufferSize;
+	mSize = vizType == kVizTypeValue ? 1 : bufferSize;
 	mSampleRate = sampleRate;
 	mColumns = 16;
 	mRange = range;
@@ -36,12 +36,24 @@ void VarViz::push(Program::Value value)
 	--mCount;
 	if (mCount == 0)
 	{		
-		mBuffer[mHead] = mRange ? value % mRange : value;
-		mMax = std::max(mBuffer[mHead], mMax);
-		mHead = (mHead + 1) % mSize;
-		mCount = mSampleRate;
+		if (mVizType == kVizTypeValue)
+		{
+			if (mBuffer[0] != value)
+			{
+				setNeedsRedraw();
+			}
+			mBuffer[0] = value;
+		}
+		else
+		{
+			mBuffer[mHead] = mRange ? value % mRange : value;
+			mMax = std::max(mBuffer[mHead], mMax);
+			mHead = (mHead + 1) % mSize;			
 
-		setNeedsRedraw();
+			setNeedsRedraw();
+		}
+
+		mCount = mSampleRate;
 	}
 }
 
@@ -67,12 +79,37 @@ void VarViz::generateDraw()
 	mViz.setFilled(false);
 	mViz.setStrokeWidth(1);
 
+	mLabel.clear();
+
 	ofPoint pos = getPosition();
 	float h = b.getHeight();
 	float w = b.getWidth();
 
 	switch (mVizType)
 	{
+		case kVizTypeValue:
+		{
+			std::string name;
+			if (!getName().empty()) {
+				name = getName() + ": ";
+			}
+			name += std::to_string(mBuffer[0]);
+
+			// resize the string inside the max width
+			if (font.isLoaded()) { // using font
+				while (font.stringWidth(name) > (getWidth() - textPadding * 2.0f)) {
+					name.resize(name.size() - 1);
+				}
+			}
+			else { // using bitmap font
+				int max = (getWidth() - textPadding * 2.0f) / 8.0f;
+				name.resize(max);
+			}
+
+			mLabel = getTextMesh(name, b.x + textPadding, b.y + b.height / 2 + 4);
+		}
+		break;
+
 		case kVizTypeWave:
 		{
 			mViz.moveTo(b.getBottomLeft());
@@ -162,6 +199,30 @@ void VarViz::generateDraw()
 
 void VarViz::render()
 {
+	ofColor c = ofGetStyle().color;
+
 	mBack.draw();
+
+	ofBlendMode blendMode = ofGetStyle().blendingMode;
+	if (blendMode != OF_BLENDMODE_ALPHA) 
+	{
+		ofEnableAlphaBlending();
+	}
+
+	if (mLabel.hasVertices())
+	{
+		ofSetColor(thisTextColor);
+
+		bindFontTexture();
+		mLabel.draw();
+		unbindFontTexture();
+	}
+
 	mViz.draw();
+
+	ofSetColor(c);
+	if (blendMode != OF_BLENDMODE_ALPHA) 
+	{
+		ofEnableBlendMode(blendMode);
+	}	
 }

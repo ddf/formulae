@@ -5,6 +5,7 @@
 
 enum VarVizType
 {
+	kVizTypeValue,
 	kVizTypeWave,
 	kVizTypeBars,
 	kVizTypeScatter,
@@ -14,16 +15,16 @@ enum VarVizType
 class VarViz : public ofxBaseGui
 {
 public:
-	VarViz( const std::string& guiName, const char varName, const VarVizType vizType = kVizTypeWave, const size_t bufferSize = 1024, const size_t sampleRate = 1, const Program::Value range = 0)
+	VarViz( const std::string& guiName, Program::Value var, const VarVizType vizType = kVizTypeWave, const size_t bufferSize = 1024, const size_t sampleRate = 1, const Program::Value range = 0)
 	{
-		setup(guiName, varName, vizType, bufferSize, sampleRate, range);
+		setup(guiName, var, vizType, bufferSize, sampleRate, range);
 	}
 
 	~VarViz();
 
-	VarViz* setup(const std::string& guiName, const char varName, const VarVizType vizType = kVizTypeWave, const size_t bufferSize = 1024, const size_t sampleRate = 1, const Program::Value range = 0);
+	VarViz* setup(const std::string& guiName, Program::Value var, const VarVizType vizType = kVizTypeWave, const size_t bufferSize = 1024, const size_t sampleRate = 1, const Program::Value range = 0);
 
-	const char getVar() const { return mVar; }
+	Program::Value getVar() const { return mVar; }
 	void setColumns(size_t cols) { mColumns = cols; }
 
 	void push(Program::Value value);
@@ -44,13 +45,14 @@ protected:
 
 	ofPath mBack;
 	ofPath mViz;
+	ofVboMesh mLabel;
 
 
 	virtual bool setValue(float mx, float my, bool bCheckBounds) override { return false; }
 
 private:
 
-	ofParameter<char > mVar;
+	ofParameter<Program::Value> mVar;
 	VarVizType mVizType;
 	size_t mSize;
 	size_t mSampleRate;
