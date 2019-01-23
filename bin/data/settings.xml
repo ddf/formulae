@@ -75,9 +75,8 @@
         c = (#(t/2) << q%v) % w;
         s = (a | b ^ (a ^ ~b) & c);
         v = 16*V4;      
-        p = p + (q%v < 1 & r<q ? q : 0);
-        p = p % 11;
-        r = q;
+        p = p + (q%v ? 0 : 1);
+        p = p % 7;
         [0] = s << p/2;
         [1] = ~s >> p/2;
         ]]>
@@ -87,7 +86,7 @@
       <control type="slider" name="p" target="V4" min="1" max="32" value="16">
         <shape x="10" y="20" w="100" h="10"/>
       </control>
-      <viz name="pviz" source="p" type="blocks" buffer="1" range="11" columns="2">
+      <viz name="pviz" source="p" type="blocks" buffer="1" range="7" columns="2">
         <shape x="10" y="31" w="100" h="56"/>
       </viz>
       
