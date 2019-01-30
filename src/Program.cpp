@@ -83,6 +83,8 @@ const char * Program::GetErrorString(Program::CompileError error)
 		return "Mismatched parens";
 	case Program::CE_MISSING_BRACKET:
 		return "Missing ']'";
+	case Program::CE_MISSING_BRACE:
+		return "Missing '}'";
 	case Program::CE_MISSING_COLON_IN_TERNARY:
 		return "Incomplete ternary statement - expected ':'";
 	case Program::CE_UNEXPECTED_CHAR:
@@ -93,7 +95,7 @@ const char * Program::GetErrorString(Program::CompileError error)
 		return "Left side of '=' must be assignable.\n(a variable, address, or output)";
 	case Program::CE_ILLEGAL_STATEMENT_TERMINATION:
 		return "Illegal statement termination.\n"
-			   "Semi-colon may not appear within parens\nor ternary operators.";
+			   "Semi-colon may not appear within parens,\nbrackets, braces, or ternary conditionals.";
 	case Program::CE_ILLEGAL_VARIABLE_NAME:
 		return "Illegal variable name.\n(uppercase letters are reserved for operators)";
 	case Program::CE_MISSING_PUT:
@@ -130,7 +132,7 @@ struct CompilationState
 
 	// some helpers
 	Program::Char operator*() const { return source[parsePos]; }
-	void Push(Program::Op::Code code, Program::Value value = 0) { ops.push_back(Program::Op(code, value)); }
+	size_t Push(Program::Op::Code code, Program::Value value = 0) { ops.push_back(Program::Op(code, value)); return ops.size()-1; }
 	void SkipWhitespace()
 	{
 		while (isspace(source[parsePos]))
@@ -351,11 +353,17 @@ static int ParseCmpOrShift(CompilationState& state)
 		// not a bitshift, so do compare
 		if (op2 != op)
 		{
+			// for <= and >= we need to eat the equals character and push a different opcode
+			bool isEqual = op2 == '=';
+			if (isEqual)
+			{
+				state.parsePos++;
+			}
 			if (ParseSummands(state)) return 1;
 			switch (op)
 			{
-			case '<': state.Push(Program::Op::CLT); break;
-			case '>': state.Push(Program::Op::CGT); break;
+			case '<': state.Push(isEqual ? Program::Op::CLE : Program::Op::CLT); break;
+			case '>': state.Push(isEqual ? Program::Op::CGE : Program::Op::CGT); break;
 			}
 		}
 		else
@@ -372,9 +380,38 @@ static int ParseCmpOrShift(CompilationState& state)
 	}
 }
 
-static int ParseAND(CompilationState& state)
+static int ParseCEQ(CompilationState& state)
 {
 	if (ParseCmpOrShift(state)) return 1;
+	for (;;)
+	{
+		state.SkipWhitespace();
+		const Program::Char op = *state;
+		if (op != '=' && op != '!')
+		{
+			return 0;
+		}
+		state.parsePos++;
+		if (*state != '=')
+		{
+			// don't want to eat the first character if it is not followed by an equals, otherwise we will mess up assignments and negation
+			state.parsePos--;
+			return 0;
+		}
+		// eat the equals sign
+		state.parsePos++;
+		if (ParseCmpOrShift(state)) return 1;
+		switch (op)
+		{
+		case '=': state.Push(Program::Op::CEQ); break;
+		case '!': state.Push(Program::Op::CNE); break;
+		}
+	}
+}
+
+static int ParseAND(CompilationState& state)
+{
+	if (ParseCEQ(state)) return 1;
 	for (;;)
 	{
 		state.SkipWhitespace();
@@ -384,7 +421,7 @@ static int ParseAND(CompilationState& state)
 			return 0;
 		}
 		state.parsePos++;
-		if (ParseCmpOrShift(state)) return 1;
+		if (ParseCEQ(state)) return 1;
 		state.Push(Program::Op::AND);
 	}
 }
@@ -423,7 +460,7 @@ static int ParseOR(CompilationState& state)
 	}
 }
 
-static int ParseTRN(CompilationState& state)
+static int ParseCND(CompilationState& state)
 {
 	if (ParseOR(state)) return 1;
 	for (;;)
@@ -435,40 +472,86 @@ static int ParseTRN(CompilationState& state)
 			return 0;
 		}
 		state.parsePos++;
-		if (Parse(state)) return 1;
-		state.SkipWhitespace();
-		op = *state;
-		if (op != ':')
-		{
-			state.error = Program::CE_MISSING_COLON_IN_TERNARY;
-			return 1;
-		}
-		state.parsePos++;
-		// when parsing what follows the colon, we decrement parse depth before recursing to Parse.
-		// this is so that if the line terminates with a semi-colon, we won't get an
-		// illegal statement termination error, unless we were already within parens.
+
+		// result of the expression before the ? will be on the top of the stack now,
+		// the CND instruction needs to check that value and jump over the next expression if it is false.
+		// we won't know where to jump until after generating the instructions for the expression,
+		// so we stash where in the the ops list our CND op needs to go, which allows us to insert it when we have the address.
+		size_t cndOpAddr = state.Push(Program::Op::CND);
+
+		// parse expression following the ?
+		// we decrement parseDepth before calling Parse because it's OK if the expression ends with a semi-colon.
+		// this will make the statement behave like an if statement.
 		state.parseDepth--;
 		if (Parse(state)) return 1;
 		state.parseDepth++;
-		// if the statement terminated in a semi-colon we will have a POP on the end of the list.
-		// we need that stack value to be able to evaluate the ternary statement,
-		// but we need to retain the POP instruction to account for the semi-colon.
-		if (state.ops.back().code == Program::Op::POP)
+
+		state.SkipWhitespace();
+
+		// this means it ended with a semi-colon, we need to insert some instructions before this, so we remove it and add it back
+		bool hasPop = state.ops.back().code == Program::Op::POP;
+		if (hasPop)
 		{
 			state.ops.pop_back();
-			state.Push(Program::Op::TRN);
-			state.Push(Program::Op::POP);
+		}
+		
+		// add a JMP instruction so we can skip what comes next, which is the "false" part of the expression
+		size_t jmpOpAddr = state.Push(Program::Op::JMP);
+		// CND needs to jump to the instruction that follows the JMP
+		state.ops[cndOpAddr].val = state.ops.size();
+		
+		// if there is a colon, the user has provided code to execute for "false".
+		// if there isn't, then we need to provide the result of the expression, which will simply be 0.
+		// in other words:
+		//		a = b ? c;
+		// is simply syntactic sugar for:
+		//		a = b ? c : 0;
+		if (*state == ':')
+		{	
+			// if they put a semi-colon before the colon, Parse won't have caught it, so we do so here
+			if (hasPop)
+			{
+				state.error = Program::CE_ILLEGAL_STATEMENT_TERMINATION;
+				return 1;
+			}
+
+			// eat the colon
+			state.parsePos++;
+			// when parsing what follows the colon, we decrement parse depth before recursing to Parse.
+			// this is so that if the line terminates with a semi-colon, we won't get an
+			// illegal statement termination error, unless we were already within parens.
+			state.parseDepth--;
+			if (Parse(state)) return 1;
+			state.parseDepth++;
+		}	
+		else
+		{
+			state.Push(Program::Op::PSH, 0);
+
+			// include the semi-colon that is in the source
+			if (hasPop)
+			{
+				state.Push(Program::Op::POP);
+			}
+		}
+
+		// if the statement terminated in a semi-colon we will have a POP on the end of the list.
+		// we need to jump directly to that POP because it *might* be replaced with a PEK or PUT.
+		if (state.ops.back().code == Program::Op::POP)
+		{
+			state.ops[jmpOpAddr].val = state.ops.size() - 1;
 		}
 		else
 		{
-			state.Push(Program::Op::TRN);
+			// when there's no POP we need to JMP to the instruction that will follow it.
+			state.ops[jmpOpAddr].val = state.ops.size();
 		}
 	}
 }
 
 static int ParsePOK(CompilationState& state)
 {
-	if (ParseTRN(state)) return 1;
+	if (ParseCND(state)) return 1;
 	for (;;)
 	{
 		state.SkipWhitespace();
@@ -495,11 +578,48 @@ static int ParsePOK(CompilationState& state)
 			state.error = Program::CE_ILLEGAL_ASSIGNMENT;
 			return 1;
 		}
-		// decrement the parse depth before recursing because it's 
-		// OK if the expression on the right hand side terminates in a semi-colon
-		state.parseDepth--;
-		if (Parse(state)) return 1;
-		state.parseDepth++;
+
+		state.SkipWhitespace();
+		// how many values to POK or PUT
+		int pcount = 0;
+		// check for the beginning of an "array" on the right side of the equals sign.		
+		if (*state == '{')
+		{
+			state.parsePos++;
+			for(;;)
+			{
+				if (Parse(state)) return 1;
+				++pcount;
+				
+				if (*state == ',')
+				{					
+					state.parsePos++;
+					continue;
+				}
+
+				// if we didn't find a comma, we *should* find the closing brace
+				if (*state == '}')
+				{
+					state.parsePos++;
+					break;					
+				}
+				else
+				{
+					state.error = Program::CE_MISSING_BRACE;
+					return 1;
+				}
+			}
+		}
+		else // no array, so it's just a single expression
+		{
+			// decrement the parse depth before recursing because it's 
+			// OK if the expression on the right hand side terminates in a semi-colon
+			state.parseDepth--;
+			if (Parse(state)) return 1;
+			state.parseDepth++;	
+			pcount = 1;
+		}
+
 		// the statement on the right side of the '=' might have ended with a semi-colon,
 		// which means the last op will be a POP. we need to POK or PUT before that.
 		const bool hasPOP = state.ops.back().code == Program::Op::POP;
@@ -510,11 +630,11 @@ static int ParsePOK(CompilationState& state)
 		switch (code)
 		{
 		case Program::Op::PEK:
-			state.Push(Program::Op::POK);
+			state.Push(Program::Op::POK, pcount);
 			break;
 
 		case Program::Op::GET:
-			state.Push(Program::Op::PUT);
+			state.Push(Program::Op::PUT, pcount);
 			break;
 			
 		// fix warning in osx
@@ -541,7 +661,7 @@ static int Parse(CompilationState& state)
 			// if we have recursed into Parse due to opening parens
 			// or due to parsing a section of a ternary operator,
 			// we should throw an error if we encounter a semi-colon
-			// because those constructs will not evaulate correctly
+			// because those constructs will not evaluate correctly
 			// if a POP appears in the middle of the instructions.
 			if (state.parseDepth != 1)
 			{
@@ -659,9 +779,10 @@ Program::RuntimeError Program::Run(Value* results, const size_t size)
 	const uint64_t icount = GetInstructionCount();
 	if (icount > 0)
 	{
-		for (int i = 0; i < icount && error == RE_NONE; ++i)
+		pc = 0;
+		for (; pc < icount && error == RE_NONE; ++pc)
 		{
-			error = Exec(ops[i], results, size);
+			error = Exec(ops[pc], results, size);
 		}
 
 		// under error-free execution we should have either 1 or 0 values in the stack.
@@ -693,6 +814,7 @@ Program::RuntimeError Program::Run(Value* results, const size_t size)
 #define POP1 if ( stack.size() < 1 ) goto bad_stack; Value a = stack.top(); stack.pop();
 #define POP2 if ( stack.size() < 2 ) goto bad_stack; Value b = stack.top(); stack.pop(); Value a = stack.top(); stack.pop();
 #define POP3 if ( stack.size() < 3 ) goto bad_stack; Value c = stack.top(); stack.pop(); Value b = stack.top(); stack.pop(); Value a = stack.top(); stack.pop();
+#define POP(n) if (stack.size() < n) goto bad_stack; std::vector<Value> args; for(int i = 0; i < n; ++i) { args.push_back(stack.top()); stack.pop(); }
 
 // perform the operation
 Program::RuntimeError Program::Exec(const Op& op, Value* results, size_t size)
@@ -839,37 +961,6 @@ Program::RuntimeError Program::Exec(const Op& op, Value* results, size_t size)
 	break;
 
 	// two operands - both are popped from the stack, result is pushed back on
-	case Op::POK:
-	{
-		POP2;
-		Poke(a, b);
-		stack.push(b);
-	}
-	break;
-
-	case Op::PUT:
-	{
-		POP2;
-		// [*] = should put the same value to all outputs
-		if (a == Wildcard::Value)
-		{
-			for (size_t i = 0; i < size; ++i)
-			{
-				results[i] = b;
-			}
-		}
-		else if (a < size)
-		{
-			results[a] = b;
-		}
-		else
-		{
-			error = RE_PUT_OUT_OF_BOUNDS;
-		}
-		stack.push(b);
-	}
-	break;
-
 	case Op::MUL:
 	{
 		POP2;
@@ -948,10 +1039,31 @@ Program::RuntimeError Program::Exec(const Op& op, Value* results, size_t size)
 	}
 	break;
 
+	case Op::CEQ:
+	{
+		POP2;
+		stack.push(a == b);
+	}
+	break;
+
+	case Op::CNE:
+	{
+		POP2;
+		stack.push(a != b);
+	}
+	break;
+
 	case Op::CLT:
 	{
 		POP2;
 		stack.push(a < b);
+	}
+	break;
+
+	case Op::CLE:
+	{
+		POP2;
+		stack.push(a <= b);
 	}
 	break;
 
@@ -962,10 +1074,118 @@ Program::RuntimeError Program::Exec(const Op& op, Value* results, size_t size)
 	}
 	break;
 
-	case Op::TRN:
+	case Op::CGE:
 	{
-		POP3;
-		stack.push(a ? b : c);
+		POP2;
+		stack.push(a >= b);
+	}
+	break;
+
+	// number of operands is variable
+	case Op::POK:
+	{
+		// pop off all of the results
+		POP(op.val);
+		// pop off the address for the first result
+		POP1;
+
+		// the order of the args is last to first,
+		// ie: { 1, 2, 3 } winds up in args as { 3, 2, 1 }
+		// this is why we pop values for Poke from the back of args.
+		for (int i = 0; i < op.val; ++i)
+		{
+			Value b = args.back();
+			args.pop_back();
+
+			Value address = a + i;
+			Poke(address, b);
+		}
+
+		// the result of this operation should be what is now in the *first* memory address (ie 'a')
+		// this is to make chained assignment statements work as expected. 
+		// for example:
+		//
+		//	a = @1 = { 1, 2, 3 };
+		//
+		// should result in the value of 'a' being equal to the value of '@1'
+		stack.push(Peek(a));
+	}
+	break;
+
+	case Op::PUT:
+	{
+		// pop off all of the results
+		POP(op.val);
+		// pop off the address for the first result
+		POP1;
+
+		Value b = args.back();
+		args.pop_back();
+
+		// [*] = should fill the entire output
+		// so we assign results in order until we run out
+		// and then repeat the last one to the remaining outputs.
+		// so, if there is only 1 result, it is copied to all outputs.
+		if (a == Wildcard::Value)
+		{	
+			// since [*] returns the sum of all values (see GET), we need to sum up the output as we go
+			Value c = 0;
+
+			for (size_t i = 0; i < size; ++i)
+			{
+				results[i] = b;
+				c += b;
+				if (!args.empty())
+				{
+					b = args.back();
+					args.pop_back();
+				}
+			}
+
+			stack.push(c);
+		}
+		else if (a < size)
+		{
+			// as with POK, the result of this operation should be equal to the first place we put a value.
+			// for example:
+			//
+			// a = [0] = { 1, 2 }
+			//
+			// should make a and [0] equal to 1, while [1] would be equal to 2
+			stack.push(b);
+
+			// begin assigning results starting from the provided index,
+			// but stop if we run out of args or get to the end of the output array.
+			results[a++] = b;
+			while (a < size && !args.empty())
+			{
+				b = args.back();
+				args.pop_back();
+				results[a++] = b;
+			}
+		}
+		else
+		{
+			error = RE_PUT_OUT_OF_BOUNDS;
+		}		
+	}
+	break;
+
+	// flow control.
+	// the pc is set to one less than the target address because it will be incremented after this method returns.
+	case Op::CND:
+	{
+		POP1;
+		if (!a) 
+		{ 
+			pc = op.val-1; 
+		}
+	}
+	break;
+
+	case Op::JMP:
+	{
+		pc = op.val-1;
 	}
 	break;
 

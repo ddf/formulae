@@ -1,6 +1,6 @@
 //
 //  Program.h
-//  From Evaluator
+//  Evaluator
 //
 //  Created by Damien Quartz on 10/9/17
 //
@@ -21,6 +21,7 @@ public:
 		CE_NONE,
 		CE_MISSING_PAREN,
 		CE_MISSING_BRACKET,
+		CE_MISSING_BRACE,
 		CE_MISSING_COLON_IN_TERNARY,
 		CE_UNEXPECTED_CHAR,
 		CE_FAILED_TO_PARSE_NUMBER,
@@ -54,7 +55,7 @@ public:
 		enum Code
 		{
 			NOP, // no operation (doesn't pop from the stack or push to it)
-			PSH, // push a value onto the stack
+			PSH, // push a constant value onto the stack (eg when a numeric value is used)
 			PEK, // get the value at a memory address
 			POK, // set the value at a memory address
 			FRQ,
@@ -72,9 +73,13 @@ public:
 			AND,
 			OR,
 			XOR,
+			CEQ, // compare ==
+			CNE, // compare !=
 			CLT, // compare <
+			CLE, // compare <=
 			CGT, // compare >
-			TRN, // ternary operator - ?:
+			CGE, // compare >=
+			CND, // conditional - ?: and ?
 			POP, // ; (pop a value from the stack and do nothing with it)
 			GET, // get the the current value of a result. eg [0] or [1].
 			PUT, // assign to an output result using [0] = expression.
@@ -83,6 +88,7 @@ public:
 			VCV, // use the operand to look up the current value of a "voltage" control value, eg 'a = V5'
 			NOT,
 			COM,
+			JMP, // JMP to the address indicated by val
 		};
 
 		// need default constructor or we can't use vector
@@ -90,7 +96,8 @@ public:
 		Op(Code _code, Value _val) : code(_code), val(_val) {}
 
 		const Code code;
-		const Value val;
+		// this is mutable because the compiler needs to be able to change it in some cases
+		Value val;
 	};
 
 	// userMemorySize is used to determine the size of read/write memory used by the program.
@@ -140,6 +147,7 @@ private:
 
 	// the compiled code
 	std::vector<Op> ops;
+	size_t pc; // program counter, stored here because it can be changed by TRN and JMP
 	const size_t userMemSize; // how much of mem is "user" memory
 	const size_t memSize; // the actual size of mem
 	// the memory space - read/write memory for the program (use Peek/Poke from C++)
