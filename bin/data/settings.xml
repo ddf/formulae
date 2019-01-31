@@ -210,7 +210,7 @@
       ]]>
     </code>
 
-    <interface w="640" h="360">
+    <interface w="640" h="360" maximize="true">
 
       <control type="slider" name="k" target="V3" min="1" max="8" value="8">
         <shape x="60" y="20" w="100" h="10"/>

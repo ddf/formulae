@@ -139,7 +139,14 @@ void ofApp::loadProgram(ofXml programSettings)
 
 		// expand to fullscreen
 		mProgramGUI.setSize(ofGetWidth(), ofGetHeight());
-		mProgramGUI.maximize();
+		if (interfaceSettings.getAttribute("maximize").getBoolValue())
+		{
+			mProgramGUI.maximize();
+		}
+		else
+		{
+			mProgramGUI.minimize();
+		}
 	}	
 	else
 	{
