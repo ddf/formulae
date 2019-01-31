@@ -22,6 +22,7 @@ void ofApp::setup()
 	mOutput.resize(kBufferSize*8);
 
 	mProgram = nullptr;
+	mKeyUI = nullptr;
 	mState = kStateMenu;
 	
 	mSoundSettings.numOutputChannels = kOutputChannels;
@@ -33,7 +34,9 @@ void ofApp::setup()
 
 	mAppSettings.load("settings.xml");
 
+#if defined(NDEBUG)
 	ofSetFullscreen(mAppSettings.getFirstChild().getAttribute("fullscreen").getBoolValue());
+#endif
 
 	mMenuText = "Choose a program:\n\n";
 	int id = 1;
@@ -169,6 +172,7 @@ void ofApp::closeProgram()
 		mProgram = nullptr;
 		// clear the gui, this will delete all UI, including our mVars
 		mProgramGUI.teardown();
+		mKeyUI = nullptr;
 		mVars.clear();
 		mMutex.unlock();
 
@@ -252,6 +256,31 @@ void ofApp::keyPressed(int key)
 		else if(key == '-' && !mProgramGUI.isMinimized())
 		{
 			mProgramGUI.minimize();
+		}
+		else if (mKeyUI != nullptr && (key >= OF_KEY_LEFT && key <= OF_KEY_DOWN) || (key >= '0' && key <= '9'))
+		{
+			auto param = mKeyUI->getParameter().cast<Program::Value>();
+			if ((key == OF_KEY_RIGHT || key == OF_KEY_UP) && param.get() < param.getMax())
+			{
+				param.set(param.get() + 1);
+			}
+			else if ((key == OF_KEY_LEFT || key == OF_KEY_DOWN) && param.get() > param.getMin())
+			{
+				param.set(param.get() - 1);
+			}
+			else
+			{
+				Program::Value val = key - '0';
+				if (val >= param.getMin() && val <= param.getMax())
+				{
+					param.set(val);
+				}
+			}
+		}
+		else if (std::isalpha(key))
+		{
+			std::string name(1, key);
+			mKeyUI = mProgramGUI.getControl(name);
 		}
 	}
 }

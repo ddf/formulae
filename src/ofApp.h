@@ -70,6 +70,8 @@ private:
 		{ "V6", &V6 },
 		{ "V7", &V7 }
 	};
+	// UI currently being controlled by the keyboard, can be nullptr
+	ofxBaseGui* mKeyUI;
 
 	std::vector<VarViz*> mVars;
 };
