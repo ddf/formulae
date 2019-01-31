@@ -97,8 +97,7 @@
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>
       <CompileAs>CompileAsCpp</CompileAs>
-      <AdditionalIncludeDirectories>
-S:\dev\of_v0.10.1_vs2017_release\addons\ofxGui\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(OF_ROOT)\addons\ofxGui\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -118,8 +117,7 @@ S:\dev\of_v0.10.1_vs2017_release\addons\ofxGui\src;%(AdditionalIncludeDirectorie
       <WarningLevel>Level3</WarningLevel>
       <CompileAs>CompileAsCpp</CompileAs>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <AdditionalIncludeDirectories>
-S:\dev\of_v0.10.1_vs2017_release\addons\ofxGui\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(OF_ROOT)\addons\ofxGui\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -138,8 +136,7 @@ S:\dev\of_v0.10.1_vs2017_release\addons\ofxGui\src;%(AdditionalIncludeDirectorie
       <WarningLevel>Level3</WarningLevel>
       <CompileAs>CompileAsCpp</CompileAs>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <AdditionalIncludeDirectories>
-S:\dev\of_v0.10.1_vs2017_release\addons\ofxGui\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(OF_ROOT)\addons\ofxGui\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
@@ -161,8 +158,7 @@ S:\dev\of_v0.10.1_vs2017_release\addons\ofxGui\src;%(AdditionalIncludeDirectorie
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>
       <CompileAs>CompileAsCpp</CompileAs>
-      <AdditionalIncludeDirectories>
-S:\dev\of_v0.10.1_vs2017_release\addons\ofxGui\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(OF_ROOT)\addons\ofxGui\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
