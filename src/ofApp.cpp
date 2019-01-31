@@ -15,7 +15,6 @@ std::map<std::string, VarVizType> kVizType = {
 //--------------------------------------------------------------
 void ofApp::setup()
 {
-	//ofSetFullscreen(true);
 	ofSetFrameRate(60);
 
 	mOutput.setNumChannels(kOutputChannels);
@@ -33,6 +32,8 @@ void ofApp::setup()
 	ofSoundStreamSetup(mSoundSettings);
 
 	mAppSettings.load("settings.xml");
+
+	ofSetFullscreen(mAppSettings.getFirstChild().getAttribute("fullscreen").getBoolValue());
 
 	mMenuText = "Choose a program:\n\n";
 	int id = 1;
