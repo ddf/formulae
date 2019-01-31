@@ -82,7 +82,6 @@ private:
 
 	ofxMidiIn mMidiIn;
 	ofxMidiOut mMidiOut;
-	int mMidiOutChannel;
 	// associates a parameter with a CC value and Channel, which are combined into a single int with the channel in the high-bits
 	std::map<int, ofParameter<Program::Value>*> mMidiMap;
 };

@@ -45,41 +45,35 @@ void ofApp::setup()
 		if (device)
 		{
 			std::string deviceName = device.getValue();
-			// open by port number
-			if (std::isdigit(deviceName[0]))
+			int count = mMidiIn.getNumInPorts();
+			for (int p = 0; p < count; ++p)
 			{
-				mMidiIn.openPort(device.getIntValue());
-			}
-			else // try to find a matching name
-			{
-				int count = mMidiIn.getNumInPorts();
-				for (int p = 0; p < count; ++p)
+				if (mMidiIn.getInPortName(p).find(deviceName) != std::string::npos)
 				{
-					if (mMidiIn.getInPortName(p).find(deviceName) != std::string::npos)
+					if (mMidiIn.openPort(p))
 					{
-						if (mMidiIn.openPort(p))
-						{
-							break;
-						}
+						break;
 					}
 				}
 			}
 
-			auto outSettings = midi.getChild("out");
-			if (mMidiIn.isOpen() && outSettings)
+			count = mMidiOut.getNumOutPorts();
+			for (int p = 0; p < count; ++p)
 			{
-				std::string portName = mMidiIn.getInPortName(mMidiIn.getPort());
-				if (mMidiOut.openPort(portName))
+				if (mMidiOut.getOutPortName(p).find(deviceName) != std::string::npos)
 				{
-					mMidiOutChannel = outSettings.getAttribute("channel").getIntValue();
+					if (mMidiOut.openPort(p))
+					{
+						break;
+					}
 				}
-
 			}
 		}
 		else
 		{
 			// open first available
 			mMidiIn.openPort();
+			mMidiOut.openPort();
 		}
 
 		if (mMidiIn.isOpen())
@@ -140,19 +134,27 @@ void ofApp::loadProgram(ofXml programSettings)
 			auto name = child.getAttribute("name").getValue();
 			if (element == "control")
 			{
-				auto VC = mVC[child.getAttribute("target").getValue()];
-				VC->setMin(child.getAttribute("min").getUintValue());
-				VC->setMax(child.getAttribute("max").getUintValue());
-				VC->set(name, child.getAttribute("value").getUintValue());
-				
-				mProgramGUI.add(*VC);
-				mParams.add(*VC);
-
-				auto midi = child.getChild("midi");
-				if (midi)
+				auto pair = mVC.find(child.getAttribute("target").getValue());
+				if (pair != mVC.end())
 				{
-					int lu = (midi.getAttribute("channel").getIntValue() << 8) | midi.getAttribute("control").getIntValue();
-					mMidiMap[lu] = VC;
+					auto VC = pair->second;
+
+					VC->setMin(child.getAttribute("min").getUintValue());
+					VC->setMax(child.getAttribute("max").getUintValue());
+					VC->set(name, child.getAttribute("value").getUintValue());
+
+					mParams.add(*VC);
+					mProgramGUI.add(*VC);
+
+					auto midi = child.getChild("midi");
+					if (midi)
+					{
+						int lu = (midi.getAttribute("channel").getIntValue() << 8) | midi.getAttribute("control").getIntValue();
+						mMidiMap[lu] = VC;
+
+						// send midi out
+						paramChanged(*VC);
+					}
 				}
 			}
 			else if (element == "viz")
@@ -241,24 +243,6 @@ void ofApp::closeProgram()
 	}
 }
 
-void ofApp::paramChanged(ofAbstractParameter& param)
-{
-	if (mMidiOut.isOpen() && !mMidiMap.empty())
-	{
-		for (auto pair : mMidiMap)
-		{
-			auto v = pair.second;
-			if (v->getName() == param.getName())
-			{
-				int channel = pair.first >> 8;
-				int control = pair.first & 255;
-				int value = ofMap(v->get(), v->getMin(), v->getMax(), 0, 127);
-				mMidiOut.sendControlChange(mMidiOutChannel, control, value);
-			}
-		}
-	}
-}
-
 //--------------------------------------------------------------
 void ofApp::update(){
 
@@ -305,6 +289,7 @@ void ofApp::draw()
 	}
 }
 
+//--------------------------------------------------------------
 void ofApp::exit()
 {
 	closeProgram();
@@ -427,6 +412,25 @@ void ofApp::newMidiMessage(ofxMidiMessage& message)
 			auto param = iter->second;
 			Program::Value val = ofMap(message.value, 0, 127, param->getMin(), param->getMax());
 			param->set(val);
+		}
+	}
+}
+
+//--------------------------------------------------------------
+void ofApp::paramChanged(ofAbstractParameter& param)
+{
+	if (mMidiOut.isOpen() && !mMidiMap.empty())
+	{
+		for (auto pair : mMidiMap)
+		{
+			auto v = pair.second;
+			if (v->getName() == param.getName())
+			{
+				int channel = pair.first >> 8;
+				int control = pair.first & 255;
+				int value = ofMap(v->get(), v->getMin(), v->getMax(), 0, 127);
+				mMidiOut.sendControlChange(channel, control, value);
+			}
 		}
 	}
 }
