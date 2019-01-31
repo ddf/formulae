@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<root fullscreen="true">
+<root fullscreen="false">
   <midi device="Midi Fighter Twister"/>
   <program name="prime_glitch" bits="15" tempo="60" memory="512">
     <code>
@@ -28,7 +28,7 @@
       
       <control type="slider" name="h" target="V1" min="0" max="32" value="4">
         <shape x="10" y="20" w="100" h="10"/>
-        <midi channel="1" control="0"/>
+        <midi control="0" channel="1"/>
       </control>
       <viz name="hviz" source="h" type="scatter" buffer="735">
         <shape x="10" y="31" w="100" h="56"/>
@@ -36,7 +36,7 @@
 
       <control type="slider" name="s" target="V2" min="0" max="32" value="1">
         <shape x="10" y="100" w="100" h="10"/>
-        <midi channel="1" control="1"/>
+        <midi control="1" channel="1"/>
       </control>
       <viz name="sviz" source="s" type="bars" buffer="8192">
         <shape x="10" y="111" w="100" h="56"/>
@@ -44,7 +44,7 @@
 
       <control type="slider" name="k" target="V3" min="0" max="8" value="1">
         <shape x="10" y="180" w="100" h="10"/>
-        <midi channel="1" control="2"/>
+        <midi control="2" channel="1"/>
       </control>
       <viz name="kviz" source="k" type="bars" buffer="8192">
         <shape x="10" y="191" w="100" h="56"/>
@@ -52,14 +52,15 @@
 
       <control type="slider" name="c" target="V0" min="0" max="15" value="8">
         <shape x="10" y="260" w="100" h="10"/>
+        <midi control="3" channel="1"/>
       </control>
       <viz name="cviz" source="c" type="blocks" buffer="1" range="128">
-        <shape x="10" y="271" w="100" h="56"/>
+        <shape x="10" y="271" w="100" h="56"/>        
       </viz>
 
       <control type="slider" name="z" target="V4" min="0" max="31" value="31">
         <shape x="120" y="20" w="510" h="10"/>
-        <midi channel="1" control="3"/>
+        <midi control="4" channel="1"/>
       </control>
       <viz name="zviz" source="z" type="bars" buffer="128" range="32768">
         <shape x="120" y="31" w="510" h="216"/>
