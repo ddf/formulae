@@ -257,9 +257,9 @@ void ofApp::keyPressed(int key)
 		{
 			mProgramGUI.minimize();
 		}
-		else if (mKeyUI != nullptr && (key >= OF_KEY_LEFT && key <= OF_KEY_DOWN) || (key >= '0' && key <= '9'))
+		else if ( ((key >= OF_KEY_LEFT && key <= OF_KEY_DOWN) || (key >= '0' && key <= '9')) && mKeyUI != nullptr )
 		{
-			auto param = mKeyUI->getParameter().cast<Program::Value>();
+			ofParameter<Program::Value>& param = mKeyUI->getParameter().cast<Program::Value>();
 			if ((key == OF_KEY_RIGHT || key == OF_KEY_UP) && param.get() < param.getMax())
 			{
 				param.set(param.get() + 1);
