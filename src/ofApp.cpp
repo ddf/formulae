@@ -245,6 +245,14 @@ void ofApp::keyPressed(int key)
 		{
 			closeProgram();
 		}
+		else if (key == '+' && mProgramGUI.isMinimized())
+		{
+			mProgramGUI.maximize();
+		}
+		else if(key == '-' && !mProgramGUI.isMinimized())
+		{
+			mProgramGUI.minimize();
+		}
 	}
 }
 
