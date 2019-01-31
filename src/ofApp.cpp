@@ -38,6 +38,56 @@ void ofApp::setup()
 	ofSetFullscreen(mAppSettings.getFirstChild().getAttribute("fullscreen").getBoolValue());
 #endif
 
+	auto midi = mAppSettings.getFirstChild().getChild("midi");
+	if (midi)
+	{
+		auto device = midi.getAttribute("device");
+		if (device)
+		{
+			std::string deviceName = device.getValue();
+			// open by port number
+			if (std::isdigit(deviceName[0]))
+			{
+				mMidiIn.openPort(device.getIntValue());
+			}
+			else // try to find a matching name
+			{
+				int count = mMidiIn.getNumInPorts();
+				for (int p = 0; p < count; ++p)
+				{
+					if (mMidiIn.getInPortName(p).find(deviceName) != std::string::npos)
+					{
+						if (mMidiIn.openPort(p))
+						{
+							break;
+						}
+					}
+				}
+			}
+
+			auto outSettings = midi.getChild("out");
+			if (mMidiIn.isOpen() && outSettings)
+			{
+				std::string portName = mMidiIn.getInPortName(mMidiIn.getPort());
+				if (mMidiOut.openPort(portName))
+				{
+					mMidiOutChannel = outSettings.getAttribute("channel").getIntValue();
+				}
+
+			}
+		}
+		else
+		{
+			// open first available
+			mMidiIn.openPort();
+		}
+
+		if (mMidiIn.isOpen())
+		{
+			mMidiIn.addListener(this);
+		}
+	}
+
 	mMenuText = "Choose a program:\n\n";
 	int id = 1;
 	for (auto child : mAppSettings.getFirstChild().getChildren("program"))
@@ -51,6 +101,7 @@ void ofApp::setup()
 	mMenu.setPosition(10, 10);
 
 	ofAddListener(mProgramGUI.closePressedE, this, &ofApp::closeProgram);
+	ofAddListener(mParams.parameterChangedE(), this, &ofApp::paramChanged);
 }
 
 //--------------------------------------------------------------
@@ -93,8 +144,16 @@ void ofApp::loadProgram(ofXml programSettings)
 				VC->setMin(child.getAttribute("min").getUintValue());
 				VC->setMax(child.getAttribute("max").getUintValue());
 				VC->set(name, child.getAttribute("value").getUintValue());
-
+				
 				mProgramGUI.add(*VC);
+				mParams.add(*VC);
+
+				auto midi = child.getChild("midi");
+				if (midi)
+				{
+					int lu = (midi.getAttribute("channel").getIntValue() << 8) | midi.getAttribute("control").getIntValue();
+					mMidiMap[lu] = VC;
+				}
 			}
 			else if (element == "viz")
 			{
@@ -174,9 +233,29 @@ void ofApp::closeProgram()
 		mProgramGUI.teardown();
 		mKeyUI = nullptr;
 		mVars.clear();
+		mParams.clear();
+		mMidiMap.clear();
 		mMutex.unlock();
 
 		mState = kStateMenu;
+	}
+}
+
+void ofApp::paramChanged(ofAbstractParameter& param)
+{
+	if (mMidiOut.isOpen() && !mMidiMap.empty())
+	{
+		for (auto pair : mMidiMap)
+		{
+			auto v = pair.second;
+			if (v->getName() == param.getName())
+			{
+				int channel = pair.first >> 8;
+				int control = pair.first & 255;
+				int value = ofMap(v->get(), v->getMin(), v->getMax(), 0, 127);
+				mMidiOut.sendControlChange(mMidiOutChannel, control, value);
+			}
+		}
 	}
 }
 
@@ -230,6 +309,8 @@ void ofApp::exit()
 {
 	closeProgram();
 	ofSoundStreamClose();
+	mMidiIn.closePort();
+	mMidiOut.closePort();
 }
 
 //--------------------------------------------------------------
@@ -334,6 +415,23 @@ void ofApp::gotMessage(ofMessage msg){
 
 }
 
+//--------------------------------------------------------------
+void ofApp::newMidiMessage(ofxMidiMessage& message)
+{
+	if (message.status == MIDI_CONTROL_CHANGE)
+	{
+		int lu = (message.channel << 8) | message.control;
+		auto iter = mMidiMap.find(lu);
+		if (iter != mMidiMap.end())
+		{
+			auto param = iter->second;
+			Program::Value val = ofMap(message.value, 0, 127, param->getMin(), param->getMax());
+			param->set(val);
+		}
+	}
+}
+
+//--------------------------------------------------------------
 void ofApp::audioOut(ofSoundBuffer& output)
 {
 	const size_t bufferSize = output.size();
@@ -341,7 +439,7 @@ void ofApp::audioOut(ofSoundBuffer& output)
 
 	mMutex.lock();
 	if (mProgram != nullptr)
-	{		
+	{
 		const Program::Value range = (Program::Value)1 << mBitDepth;
 		const float mdenom = mSoundSettings.sampleRate / 1000.0f;
 		const float qdenom = (mSoundSettings.sampleRate / (mTempo / 60.0f)) / 128.0f;
@@ -350,7 +448,7 @@ void ofApp::audioOut(ofSoundBuffer& output)
 		mProgram->Set('~', (Program::Value)mSoundSettings.sampleRate);
 
 		Program::Value results[kOutputChannels];
-		Program::RuntimeError error;		
+		Program::RuntimeError error;
 		for (size_t f = 0; f < bufferSize; f += nChannels)
 		{
 			mProgram->Set('t', mTick);

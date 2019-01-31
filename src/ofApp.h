@@ -2,12 +2,13 @@
 
 #include "ofMain.h"
 #include "ofxGui.h"
+#include "ofxMidi.h"
 
 #include "Program.h"
 #include "ProgramGUI.h"
 #include "VarViz.h"
 
-class ofApp : public ofBaseApp{
+class ofApp : public ofBaseApp, public ofxMidiListener {
 
 	public:
 		void setup();
@@ -29,10 +30,12 @@ class ofApp : public ofBaseApp{
 		
 
 		virtual void audioOut(ofSoundBuffer& output) override;
+		virtual void newMidiMessage(ofxMidiMessage& message) override;
 
 private:
 	void loadProgram(ofXml programSettings);
 	void closeProgram();
+	void paramChanged(ofAbstractParameter& param);
 
 	enum State
 	{
@@ -72,6 +75,14 @@ private:
 	};
 	// UI currently being controlled by the keyboard, can be nullptr
 	ofxBaseGui* mKeyUI;
+	// V params currently in use
+	ofParameterGroup mParams;
 
 	std::vector<VarViz*> mVars;
+
+	ofxMidiIn mMidiIn;
+	ofxMidiOut mMidiOut;
+	int mMidiOutChannel;
+	// associates a parameter with a CC value and Channel, which are combined into a single int with the channel in the high-bits
+	std::map<int, ofParameter<Program::Value>*> mMidiMap;
 };
