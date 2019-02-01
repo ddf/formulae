@@ -229,6 +229,17 @@ void ofApp::closeProgram()
 	if (mState == kStateProgram)
 	{
 		mMutex.lock();
+		
+		if (mMidiOut.isOpen() && !mMidiMap.empty())
+		{
+			for (auto pair : mMidiMap)
+			{
+				int channel = pair.first >> 8;
+				int control = pair.first & 255;
+				mMidiOut.sendControlChange(channel, control, 0);
+			}
+		}
+
 		delete mProgram;
 		mProgram = nullptr;
 		// clear the gui, this will delete all UI, including our mVars

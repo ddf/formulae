@@ -91,6 +91,7 @@
       
       <control type="slider" name="p" target="V4" min="1" max="32" value="16">
         <shape x="10" y="20" w="100" h="10"/>
+        <midi control="5" channel="1"/>
       </control>
       <viz name="pviz" source="p" type="blocks" buffer="1" range="7" columns="2">
         <shape x="10" y="31" w="100" h="56"/>
@@ -98,6 +99,7 @@
       
       <control type="slider" name="a" target="V0" min="1" max="16" value="16">
         <shape x="120" y="20" w="500" h="10"/>
+        <midi control="6" channel="1"/>
       </control>
       <viz name="aviz" source="a" type="bars" buffer="256" range="256">
         <shape x="120" y="31" w="500" h="90"/>
@@ -105,6 +107,7 @@
   
       <control type="slider" name="b" target="V1" min="1" max="32" value="8">
         <shape x="120" y="134" w="500" h="10"/>
+        <midi control="7" channel="1"/>
       </control>
       <viz name="bviz" source="b" type="wave" buffer="128" rate="16" range="256">
         <shape x="120" y="145" w="500" h="90"/>
@@ -112,6 +115,7 @@
 
       <control type="slider" name="c" target="V3" min="1" max="16" value="8">
         <shape x="120" y="248" w="500" h="10"/>
+        <midi control="8" channel="1"/>
       </control>
       <viz name="cviz" source="c" type="bars" buffer="2048">
         <shape x="120" y="259" w="500" h="90"/>
@@ -156,6 +160,7 @@
     <interface w="640" h="380">
       <control type="slider" name="b" target="V0" min="1" max="16" value="4">
         <shape x="10" y="20" w="620" h="10"/>
+        <midi control="9" channel="1"/>
       </control>
       <viz name="bviz" source="b" type="bars" buffer="128" rate="64" range="128">
         <shape x="10" y="31" w="620" h="56"/>
@@ -163,6 +168,7 @@
 
       <control type="slider" name="s" target="V1" min="0" max="15" value="8">
         <shape x="10" y="100" w="620" h="10"/>
+        <midi control="10" channel="1"/>
       </control>
       <viz name="sviz" source="s" type="bars" buffer="256" range="256">
         <shape x="10" y="111" w="620" h="56"/>
@@ -170,6 +176,7 @@
 
       <control type="slider" name="k" target="V2" min="0" max="8" value="1">
         <shape x="40" y="180" w="250" h="10"/>
+        <midi control="11" channel="1"/>
       </control>
       <viz name="kviz" source="k" type="bars" buffer="4096">
         <shape x="40" y="191" w="250" h="56"/>
@@ -177,6 +184,7 @@
 
       <control type="slider" name="h" target="V3" min="0" max="4" value="1">
         <shape x="350" y="180" w="250" h="10"/>
+        <midi control="12" channel="1"/>
       </control>
       <viz name="hviz" source="h" type="bars" buffer="8192">
         <shape x="350" y="191" w="250" h="56"/>
@@ -220,6 +228,7 @@
 
       <control type="slider" name="k" target="V3" min="1" max="8" value="8">
         <shape x="60" y="20" w="100" h="10"/>
+        <midi control="13" channel="1"/>
       </control>
       <viz name="kviz" source="k" type="bars" buffer="256" rate="8">
         <shape x="60" y="31" w="100" h="320"/>
@@ -227,6 +236,7 @@
 
       <control type="slider" name="h" target="V1" min="1" max="8" value="4">
         <shape x="270" y="20" w="100" h="10"/>
+        <midi control="14" channel="1"/>
       </control>
       <viz name="hviz" source="h" type="bars" buffer="256" rate="8">
         <shape x="270" y="31" w="100" h="320"/>
@@ -234,6 +244,7 @@
 
       <control type="slider" name="s" target="V2" min="1" max="8" value="8">
         <shape x="480" y="20" w="100" h="10"/>
+        <midi control="15" channel="1"/>
       </control>
       <viz name="sviz" source="s" type="bars" buffer="256" rate="8">
         <shape x="480" y="31" w="100" h="320"/>
