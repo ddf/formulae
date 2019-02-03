@@ -42,7 +42,11 @@ void ProgramGUI::teardown()
 void ProgramGUI::setSize(float w, float h)
 {	
 	b.width = w;
-	b.height = h;
+	// only change height if not maximized, otherwise the background will appear
+	if (!isMinimized())
+	{		
+		b.height = h;
+	}
 	if (!collection.empty())
 	{
 		float rw = w / mW;
