@@ -38,6 +38,7 @@ private:
 	void loadProgram(ofXml programSettings);
 	void closeProgram();
 	void paramChanged(ofAbstractParameter& param);
+	void programSelected(int& idx);
 
 	enum State
 	{

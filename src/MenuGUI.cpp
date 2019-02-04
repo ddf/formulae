@@ -1,6 +1,5 @@
 #include "MenuGUI.h"
-
-
+#include "ofEvent.h"
 
 MenuGUI::MenuGUI()
 {
@@ -19,6 +18,13 @@ MenuGUI * MenuGUI::setup(const std::string& collectionName /*= ""*/, const std::
 	spacing = 4;
 
 	return this;
+}
+
+void MenuGUI::add(std::string & buttonName)
+{
+	auto button = new Button(ofParameter<int>(buttonName, collection.size()));
+	ofAddListener(button->clickedE, this, &MenuGUI::onButtonClick);
+	ofxGuiGroup::add(button);
 }
 
 bool MenuGUI::setValue(float mx, float my, bool bCheck)
@@ -54,4 +60,9 @@ void MenuGUI::generateDraw()
 	headerBg.rectangle(b.x, b.y + 1 + spacingNextElement, b.width, header);
 
 	textMesh = getTextMesh(getName(), textPadding + b.x, header / 2 + 4 + b.y + spacingNextElement);
+}
+
+void MenuGUI::onButtonClick(int& id)
+{
+	ofNotifyEvent(buttonClickedE, id, this);
 }

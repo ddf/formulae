@@ -79,6 +79,9 @@
     <ClCompile Include="src\MenuGUI.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="src\Button.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="src">
@@ -228,6 +231,9 @@
       <Filter>addons\ofxMidi\libs\rtmidi</Filter>
     </ClInclude>
     <ClInclude Include="src\MenuGUI.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Button.h">
       <Filter>src</Filter>
     </ClInclude>
   </ItemGroup>

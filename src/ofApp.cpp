@@ -86,8 +86,13 @@ void ofApp::setup()
 		}
 	}
 
-	mMenu.setup("Choose a program:", "menu.xml", 10, 10);
-	mMenu.setSize(ofGetWidth(), ofGetHeight());
+	ofxBaseGui::setDefaultWidth(250);
+	ofxBaseGui::setDefaultHeight(40);
+	ofxBaseGui::setDefaultTextPadding(10);
+
+	mMenu.setup("Choose a program:", "menu.xml", 0, 0);
+
+	ofxBaseGui::setDefaultHeight(20);
 
 	int id = 1;
 	for (auto child : mAppSettings.getFirstChild().getChildren("program"))
@@ -95,10 +100,11 @@ void ofApp::setup()
 		mProgramList.push_back(child);
 		std::string label("    ");
 		label += std::to_string(id) + ". " + child.getAttribute("name").getValue() + "\n";
-		mMenu.add(ofReadOnlyParameter<std::string, MenuGUI>(label));
+		mMenu.add(label);
 		++id;
 	}
 
+	ofAddListener(mMenu.buttonClickedE, this, &ofApp::programSelected);
 	ofAddListener(mProgramGUI.closePressedE, this, &ofApp::closeProgram);
 	ofAddListener(mParams.parameterChangedE(), this, &ofApp::paramChanged);
 }
@@ -255,6 +261,9 @@ void ofApp::closeProgram()
 		mMidiMap.clear();
     
 		mProgramMutex.unlock();
+
+		// have to reset this otherwise our menu options move when hovered over
+		ofxBaseGui::setDefaultTextPadding(10);
 
 		mState = kStateMenu;
 	}
@@ -454,6 +463,18 @@ void ofApp::paramChanged(ofAbstractParameter& param)
 				int value = ofMap(v->get(), v->getMin(), v->getMax(), 0, 127);
 				mMidiOut.sendControlChange(channel, control, value);
 			}
+		}
+	}
+}
+
+//--------------------------------------------------------------
+void ofApp::programSelected(int& which)
+{
+	if (mState == kStateMenu)
+	{
+		if (which >= 0 && which < mProgramList.size())
+		{
+			loadProgram(mProgramList[which]);
 		}
 	}
 }
