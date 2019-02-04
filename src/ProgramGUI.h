@@ -22,8 +22,8 @@ public:
 	ofEvent<void> closePressedE;
 
 protected:
-	bool setValue(float mx, float my, bool bCheck);
-	void generateDraw();
+	bool setValue(float mx, float my, bool bCheck) override;
+	void generateDraw() override;
 
 	virtual void onMaximize() override;
 	

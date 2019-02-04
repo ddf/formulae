@@ -40,8 +40,8 @@ public:
 	virtual bool mouseScrolled(ofMouseEventArgs & args) override { return false; }
 
 protected:
-	void render();
-	void generateDraw();
+	void render() override;
+	void generateDraw() override;
 
 	ofPath mBack;
 	ofPath mViz;
