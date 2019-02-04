@@ -4,6 +4,8 @@
 #include "ofxGui.h"
 #include "ofxMidi.h"
 
+#include "MenuGUI.h"
+
 #include "Program.h"
 #include "ProgramGUI.h"
 #include "VarViz.h"
@@ -55,8 +57,7 @@ private:
 	// to prevent rendering from holding up the audio thread
 	ofSoundBuffer mOutputRender;
 
-	ofxLabel mMenu;
-	ofParameter<std::string> mMenuText;
+	MenuGUI mMenu;
 
 	Program* mProgram;
 	ofMutex mProgramMutex;

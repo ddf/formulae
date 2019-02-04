@@ -86,17 +86,18 @@ void ofApp::setup()
 		}
 	}
 
-	mMenuText = "Choose a program:\n\n";
+	mMenu.setup("Choose a program:", "menu.xml", 10, 10);
+	mMenu.setSize(ofGetWidth(), ofGetHeight());
+
 	int id = 1;
 	for (auto child : mAppSettings.getFirstChild().getChildren("program"))
 	{
 		mProgramList.push_back(child);
-		mMenuText += "\t" + std::to_string(id) + ". " + child.getAttribute("name").getValue() + "\n";
+		std::string label("    ");
+		label += std::to_string(id) + ". " + child.getAttribute("name").getValue() + "\n";
+		mMenu.add(ofReadOnlyParameter<std::string, MenuGUI>(label));
 		++id;
 	}
-
-	mMenu.setup(mMenuText, ofGetWidth(), 20);
-	mMenu.setPosition(10, 10);
 
 	ofAddListener(mProgramGUI.closePressedE, this, &ofApp::closeProgram);
 	ofAddListener(mParams.parameterChangedE(), this, &ofApp::paramChanged);
