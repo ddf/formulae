@@ -20,6 +20,10 @@ void ofApp::setup()
 	mOutput.setNumChannels(kOutputChannels);
 	mOutput.setSampleRate(kSampleRate);
 	mOutput.resize(kBufferSize*8);
+	mOutputRead = 0;
+	mOutputRender.setNumChannels(kOutputChannels);
+	mOutputRender.setSampleRate(kSampleRate);
+	mOutputRender.resize(kBufferSize*8);
 
 	mProgram = nullptr;
 	mKeyUI = nullptr;
@@ -228,7 +232,7 @@ void ofApp::closeProgram()
 {
 	if (mState == kStateProgram)
 	{
-		mMutex.lock();
+		mProgramMutex.lock();
 		
 		if (mMidiOut.isOpen() && !mMidiMap.empty())
 		{
@@ -248,7 +252,8 @@ void ofApp::closeProgram()
 		mVars.clear();
 		mParams.clear();
 		mMidiMap.clear();
-		mMutex.unlock();
+    
+		mProgramMutex.unlock();
 
 		mState = kStateMenu;
 	}
@@ -277,22 +282,28 @@ void ofApp::draw()
 
 	if (mState == kStateProgram)
 	{
-		mMutex.lock();
-		size_t outputBegin = mTick < frames ? 0 : (mTick - frames) % frames;
+		// copy the contents of the audio thread buffer into our render thread buffer
+		// and calculate which frame we need to start reading from.
+		mOutputMutex.lock();
+		mOutput.copyTo(mOutputRender);
+		const size_t outputBegin = mOutputRead % frames;
+		mOutputMutex.unlock();
+
+		// render the buffer of samples
 		for (size_t i = 0; i < frames; ++i)
 		{
 			int x = w * (i%cols);
 			int y = h * (i / cols);
 			size_t f = (outputBegin + i) % frames;
-			ofSetColor((mOutput.getSample(f, 0) + 1)*127.5f);
+			ofSetColor((mOutputRender.getSample(f, 0) + 1)*127.5f);
 			ofDrawRectangle(x, y, w, h);
 			x += hw;
-			ofSetColor((mOutput.getSample(f, 1) + 1)*127.5f);
+			ofSetColor((mOutputRender.getSample(f, 1) + 1)*127.5f);
 			ofDrawRectangle(x, y, w, h);
 		}
 
+		// draw the gui on top of it
 		mProgramGUI.draw();
-		mMutex.unlock();
 	}
 	else
 	{
@@ -451,8 +462,8 @@ void ofApp::audioOut(ofSoundBuffer& output)
 {
 	const size_t bufferSize = output.size();
 	const size_t nChannels = output.getNumChannels();
-
-	mMutex.lock();
+	
+	mProgramMutex.lock();
 	if (mProgram != nullptr)
 	{
 		const Program::Value range = (Program::Value)1 << mBitDepth;
@@ -461,6 +472,11 @@ void ofApp::audioOut(ofSoundBuffer& output)
 
 		mProgram->Set('w', range);
 		mProgram->Set('~', (Program::Value)mSoundSettings.sampleRate);
+    
+		for(size_t i = 0; i < mVars.size(); ++i)
+		{
+			mVars[i]->lock();
+		}
 
 		Program::Value results[kOutputChannels];
 		Program::RuntimeError error;
@@ -489,8 +505,15 @@ void ofApp::audioOut(ofSoundBuffer& output)
 			}
 			++mTick;
 		}
+    
+		for(size_t i = 0; i < mVars.size(); ++i)
+		{
+			mVars[i]->unlock();
+		}
 	}
+	mProgramMutex.unlock();
 
+	mOutputMutex.lock();
 	size_t writeBegin = (mTick*nChannels - bufferSize) % mOutput.size();
 	const size_t outSize = mOutput.size();
 	for (size_t f = 0; f < bufferSize; f += nChannels)
@@ -499,7 +522,8 @@ void ofApp::audioOut(ofSoundBuffer& output)
 		mOutput[i] = output[f];
 		mOutput[i + 1] = output[f + 1];
 	}
-	mMutex.unlock();
+	mOutputRead += bufferSize/nChannels;
+	mOutputMutex.unlock();
 }
 
 //--------------------------------------------------------------

@@ -48,13 +48,18 @@ private:
 	ofXml mAppSettings;
 	std::vector<ofXml> mProgramList;
 
-	ofMutex mMutex;
+	ofMutex mOutputMutex;
 	ofSoundBuffer mOutput;
+	size_t mOutputRead;
+	// sound buffer we copy mOutput to before rendering it,
+	// to prevent rendering from holding up the audio thread
+	ofSoundBuffer mOutputRender;
 
 	ofxLabel mMenu;
 	ofParameter<std::string> mMenuText;
 
 	Program* mProgram;
+	ofMutex mProgramMutex;
 	std::string mCode;
 	unsigned mBitDepth;
 	unsigned mTempo;

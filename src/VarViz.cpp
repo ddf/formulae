@@ -31,6 +31,7 @@ VarViz::~VarViz()
 {
 }
 
+// called from audio thread so we do not need to lock/unlock the mutex
 void VarViz::push(Program::Value value)
 {
 	--mCount;
@@ -62,6 +63,7 @@ ofAbstractParameter & VarViz::getParameter()
 	return mVar;
 }
 
+// called from render thread, so we need to lock the mutex while we access our data
 void VarViz::generateDraw()
 {
 	mBack.clear();
@@ -114,6 +116,7 @@ void VarViz::generateDraw()
 		{
 			mViz.moveTo(b.getBottomLeft());
 			
+			lock();
 			for (int i = 0; i < mSize; ++i)
 			{
 				int s = (mHead + i) % mSize;
@@ -121,11 +124,13 @@ void VarViz::generateDraw()
 				float vy = pos.y + h - h * ((float)mBuffer[s] / mMax);
 				mViz.lineTo(vx, vy);
 			}
+			unlock();
 		}
 		break;
 
 		case kVizTypeBars:
 		{			
+			lock();
 			if (w >= h)
 			{
 				const float cy = pos.y + h * 0.5f;
@@ -150,11 +155,13 @@ void VarViz::generateDraw()
 					mViz.lineTo(cx - bw, by);
 				}
 			}
+			unlock();
 		}
 		break;
 
 		case kVizTypeScatter:
 		{
+			lock();
 			for (int i = 0; i < mSize; ++i)
 			{
 				int sz = w * h;
@@ -163,6 +170,7 @@ void VarViz::generateDraw()
 				int sy = pos.y + h - s / (int)w;
 				mViz.rectangle(sx, sy, 1, 1);
 			}
+			unlock();
 		}
 		break;
 
@@ -181,6 +189,7 @@ void VarViz::generateDraw()
 			}
 
 			mViz.setFilled(true);
+			lock();
 			for (int i = 0; i < mSize; ++i)
 			{
 				auto s = mBuffer[(mHead + i) % mSize];
@@ -188,6 +197,7 @@ void VarViz::generateDraw()
 				float cy = pos.y + (s / mColumns) * step;
 				mViz.rectangle(cx - radius, cy - radius, radius * 2, radius * 2);
 			}
+			unlock();
 		}
 		break;
 

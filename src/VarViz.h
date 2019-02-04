@@ -2,6 +2,7 @@
 
 #include "Program.h"
 #include "ofxBaseGui.h"
+#include "ofTypes.h" // for ofMutex
 
 enum VarVizType
 {
@@ -27,6 +28,8 @@ public:
 	Program::Value getVar() const { return mVar; }
 	void setColumns(size_t cols) { mColumns = cols; }
 
+	void lock() { mMutex.lock(); }
+	void unlock() { mMutex.unlock(); }
 	void push(Program::Value value);
 
 
@@ -52,6 +55,7 @@ protected:
 
 private:
 
+	ofMutex mMutex;
 	ofParameter<Program::Value> mVar;
 	VarVizType mVizType;
 	size_t mSize;
