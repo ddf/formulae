@@ -113,7 +113,7 @@ void ProgramGUI::generateDraw()
 
 		if (!mbRunning)
 		{
-			textMesh.append(getTextMesh(mProgramCode, textPadding + b.x, header + b.y + 10));
+			textMesh.append(getTextMesh(mProgramCode, textPadding + b.x, header + b.y + 4));
 		}
 	}
 	else 

@@ -16,6 +16,7 @@ MenuGUI * MenuGUI::setup(const std::string& collectionName /*= ""*/, const std::
 	setHeaderBackgroundColor(ofColor::black);
 	setBorderColor(ofColor::black);
 	spacing = 4;
+	spacingNextElement = -1;
 	focusedButton = nullptr;	
 
 	return this;
