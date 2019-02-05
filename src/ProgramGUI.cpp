@@ -4,12 +4,14 @@
 
 ProgramGUI::ProgramGUI()
 : ofxGuiGroup()
+, mbRunning(false)
 {
 }
 
 
 ProgramGUI::ProgramGUI(const ofParameterGroup & parameters, const std::string& _filename /*= "settings.xml"*/, float x /*= 10*/, float y /*= 10*/)
 : ofxGuiGroup(parameters, filename, x, y)
+, mbRunning(false)
 {
 }
 
@@ -17,9 +19,10 @@ ProgramGUI::~ProgramGUI()
 {
 }
 
-void ProgramGUI::setup(const std::string& collectionName /* = "" */, const std::string& filename /* = "settings.xml" */, float x /* = 10 */, float y /* = 10 */)
+void ProgramGUI::setup(const std::string& collectionName /* = "" */, const std::string& code, const std::string& filename /* = "settings.xml" */, float x /* = 10 */, float y /* = 10 */)
 {
 	ofxGuiGroup::setup(collectionName, filename, x, y);
+	mProgramCode = code;
 	spacing = 0;
 	spacingNextElement = -1;
 	mW = b.width;
@@ -96,11 +99,25 @@ void ProgramGUI::generateDraw()
 	headerBg.setFilled(true);
 	headerBg.rectangle(b.x, b.y + 1 + spacingNextElement, b.width, header);
 
+	ofRectangle nameBox = getTextBoundingBox(getName(), textPadding + b.x, 0);
 	textMesh = getTextMesh(getName(), textPadding + b.x, header / 2 + 4 + b.y + spacingNextElement);
-	if (minimized) {
+
+	const char * transport = mbRunning ? "> stop" : "> run";
+
+	mRunRect = getTextBoundingBox(transport, 30 + nameBox.getMaxX(), 0);
+	textMesh.append(getTextMesh(transport, mRunRect.x, header / 2 + 4 + b.y + spacingNextElement));
+
+	if (minimized) 
+	{
 		textMesh.append(getTextMesh("+", b.width - textPadding - 24 + b.x, header / 2 + 4 + b.y + spacingNextElement));
+
+		if (!mbRunning)
+		{
+			textMesh.append(getTextMesh(mProgramCode, textPadding + b.x, header + b.y + 10));
+		}
 	}
-	else {
+	else 
+	{
 		textMesh.append(getTextMesh("-", b.width - textPadding - 24 + b.x, header / 2 + 4 + b.y + spacingNextElement));
 	}
 
@@ -129,6 +146,11 @@ bool ProgramGUI::setValue(float mx, float my, bool bCheck) {
 			ofRectangle closeButton(b.x + x, b.y, b.width - x, header);
 			if (closeButton.inside(mx, my)) {
 				ofNotifyEvent(closePressedE, this);
+				return true;
+			}
+			ofRectangle runButton(mRunRect.x, b.y, mRunRect.width, header);
+			if (runButton.inside(mx, my)) {
+				ofNotifyEvent(transportPressedE, this);
 				return true;
 			}
 		}

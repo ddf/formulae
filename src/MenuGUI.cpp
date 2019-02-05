@@ -35,9 +35,9 @@ void MenuGUI::add(std::string & buttonName)
 	}
 }
 
-void MenuGUI::keyPressed(ofKeyEventArgs& args)
+bool MenuGUI::keyPressed(ofKeyEventArgs& args)
 {
-	if (focusedButton == nullptr) return;
+	if (focusedButton == nullptr) return false;
 
 	const int key = args.key;
 
@@ -45,16 +45,19 @@ void MenuGUI::keyPressed(ofKeyEventArgs& args)
 	{
 		int id = focusedButton->getID();
 		onButtonClick(id);
+		return true;
 	}
 	else if (key == OF_KEY_DOWN && focusedButton->getID() < collection.size())
 	{
 		int next = focusedButton->getID() + 1;
 		onButtonHover(next);
+		return true;
 	}
 	else if (key == OF_KEY_UP && focusedButton->getID() > 0)
 	{
 		int next = focusedButton->getID() - 1;
 		onButtonHover(next);
+		return true;
 	}
 	else
 	{
@@ -62,8 +65,11 @@ void MenuGUI::keyPressed(ofKeyEventArgs& args)
 		if (idx >= 0 && idx < collection.size())
 		{
 			onButtonHover(idx);
+			return true;
 		}
 	}
+
+	return false;
 }
 
 void MenuGUI::keyReleased(ofKeyEventArgs& args)

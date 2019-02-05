@@ -108,6 +108,7 @@ void ofApp::setup()
 
 	ofAddListener(mMenu.buttonClickedE, this, &ofApp::programSelected);
 	ofAddListener(mProgramGUI.closePressedE, this, &ofApp::closeProgram);
+	ofAddListener(mProgramGUI.transportPressedE, this, &ofApp::toggleProgramState);
 	ofAddListener(mParams.parameterChangedE(), this, &ofApp::paramChanged);
 }
 
@@ -120,17 +121,17 @@ void ofApp::loadProgram(ofXml programSettings)
 	mBitDepth = programSettings.getAttribute("bits").getUintValue();
 	Program::Value memorySize = programSettings.getAttribute("memory").getUintValue();
 
-	ofxBaseGui::setDefaultBorderColor(ofColor(255));
+	ofxBaseGui::setDefaultBorderColor(255);
 	ofxBaseGui::setDefaultBackgroundColor(0);
 	ofxBaseGui::setDefaultHeaderBackgroundColor(0);
 	ofxBaseGui::setDefaultHeight(40);
 	ofxBaseGui::setDefaultTextPadding(10);
 
 	std::string programName = programSettings.getAttribute("name").getValue();
-	mProgramGUI.setup(programName, programName + ".xml", 0, 0);
+	mProgramGUI.setup(programName, mCode, programName + ".xml", 0, 0);
 	mProgramGUI.setShape(0, 0, ofGetWidth(), ofGetHeight());
 	mProgramGUI.setHeaderBackgroundColor(0);
-	mProgramGUI.setBackgroundColor(0);
+	mProgramGUI.setBackgroundColor(64);
 
 	ofXml interfaceSettings = programSettings.getChild("interface");
 	if (interfaceSettings)
@@ -235,12 +236,13 @@ void ofApp::loadProgram(ofXml programSettings)
 	mProgram = Program::Compile(mCode.c_str(), memorySize, error, errorPosition);
 
 	mMenu.minimize();
-	mState = kStateProgram;
+	mProgramGUI.setRunning(false);
+	mState = kStateProgramStopped;
 }
 
 void ofApp::closeProgram()
 {
-	if (mState == kStateProgram)
+	if (mState == kStateProgramStopped || mState == kStateProgramRunning)
 	{
 		mProgramMutex.lock();
 		
@@ -273,6 +275,33 @@ void ofApp::closeProgram()
 }
 
 //--------------------------------------------------------------
+void ofApp::toggleProgramState()
+{
+	mProgramMutex.lock();
+	if (mProgram != nullptr)
+	{
+		switch (mState)
+		{
+			case kStateProgramRunning: 
+			{
+				mState = kStateProgramStopped;
+				mProgramGUI.setRunning(false);
+			}
+			break;
+			
+			case kStateProgramStopped:
+			{
+				mTick = 0;
+				mState = kStateProgramRunning;
+				mProgramGUI.setRunning(true);
+			}
+			break;
+		}
+	}
+	mProgramMutex.unlock();
+}
+
+//--------------------------------------------------------------
 void ofApp::update(){
 
 }
@@ -293,26 +322,29 @@ void ofApp::draw()
 	ofSetRectMode(OF_RECTMODE_CORNER);
 	ofFill();
 
-	if (mState == kStateProgram)
+	if (mState == kStateProgramRunning || mState == kStateProgramStopped)
 	{
-		// copy the contents of the audio thread buffer into our render thread buffer
-		// and calculate which frame we need to start reading from.
-		mOutputMutex.lock();
-		mOutput.copyTo(mOutputRender);
-		const size_t outputBegin = mOutputRead % frames;
-		mOutputMutex.unlock();
-
-		// render the buffer of samples
-		for (size_t i = 0; i < frames; ++i)
+		if (mState == kStateProgramRunning)
 		{
-			int x = w * (i%cols);
-			int y = h * (i / cols);
-			size_t f = (outputBegin + i) % frames;
-			ofSetColor((mOutputRender.getSample(f, 0) + 1)*127.5f);
-			ofDrawRectangle(x, y, w, h);
-			x += hw;
-			ofSetColor((mOutputRender.getSample(f, 1) + 1)*127.5f);
-			ofDrawRectangle(x, y, w, h);
+			// copy the contents of the audio thread buffer into our render thread buffer
+			// and calculate which frame we need to start reading from.
+			mOutputMutex.lock();
+			mOutput.copyTo(mOutputRender);
+			const size_t outputBegin = mOutputRead % frames;
+			mOutputMutex.unlock();
+
+			// render the buffer of samples
+			for (size_t i = 0; i < frames; ++i)
+			{
+				int x = w * (i%cols);
+				int y = h * (i / cols);
+				size_t f = (outputBegin + i) % frames;
+				ofSetColor((mOutputRender.getSample(f, 0) + 1)*127.5f);
+				ofDrawRectangle(x, y, w, h);
+				x += hw;
+				ofSetColor((mOutputRender.getSample(f, 1) + 1)*127.5f);
+				ofDrawRectangle(x, y, w, h);
+			}
 		}
 
 		// draw the gui on top of it
@@ -336,11 +368,15 @@ void ofApp::exit()
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key)
 {
-	if (mState == kStateProgram)
+	if (mState == kStateProgramRunning || mState == kStateProgramStopped)
 	{
 		if (key == 'q')
 		{
 			closeProgram();
+		}
+		else if (key == OF_KEY_RETURN)
+		{
+			toggleProgramState();
 		}
 		else if (key == '+' && mProgramGUI.isMinimized())
 		{
@@ -416,7 +452,7 @@ void ofApp::mouseExited(int x, int y){
 //--------------------------------------------------------------
 void ofApp::windowResized(int w, int h)
 {
-	if (mState == kStateProgram)
+	if (mState == kStateProgramRunning || mState == kStateProgramStopped)
 	{
 		mProgramGUI.setSize(w, h);
 	}
@@ -481,7 +517,7 @@ void ofApp::audioOut(ofSoundBuffer& output)
 	const size_t nChannels = output.getNumChannels();
 	
 	mProgramMutex.lock();
-	if (mProgram != nullptr)
+	if (mProgram != nullptr && mState == kStateProgramRunning)
 	{
 		const Program::Value range = (Program::Value)1 << mBitDepth;
 		const float mdenom = mSoundSettings.sampleRate / 1000.0f;

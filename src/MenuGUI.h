@@ -15,7 +15,8 @@ public:
 
 	ofEvent<int> buttonClickedE;
 
-	void keyPressed(ofKeyEventArgs& key);
+	// returns a bool so that we can eat the event
+	bool keyPressed(ofKeyEventArgs& key);
 	void keyReleased(ofKeyEventArgs& key);
 
 protected:

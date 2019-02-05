@@ -37,13 +37,15 @@ class ofApp : public ofBaseApp, public ofxMidiListener {
 private:
 	void loadProgram(ofXml programSettings);
 	void closeProgram();
+	void toggleProgramState();
 	void paramChanged(ofAbstractParameter& param);
 	void programSelected(int& idx);
 
 	enum State
 	{
 		kStateMenu,
-		kStateProgram
+		kStateProgramStopped,
+		kStateProgramRunning,
 	} mState;
 
 	ofSoundStreamSettings mSoundSettings;
