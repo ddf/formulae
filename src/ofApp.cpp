@@ -16,6 +16,7 @@ std::map<std::string, VarVizType> kVizType = {
 void ofApp::setup()
 {
 	ofSetFrameRate(60);
+	ofSetEscapeQuitsApp(false);
 
 	mOutput.setNumChannels(kOutputChannels);
 	mOutput.setSampleRate(kSampleRate);
@@ -366,11 +367,14 @@ void ofApp::exit()
 }
 
 //--------------------------------------------------------------
-void ofApp::keyPressed(int key)
+void ofApp::keyPressed(ofKeyEventArgs & args)
 {
 	if (mState == kStateProgramRunning || mState == kStateProgramStopped)
 	{
-		if (key == 'q')
+		int key = args.key;
+
+		// 24 is the 'x' key when control is held down
+		if (key == OF_KEY_ESC || (args.hasModifier(OF_KEY_CONTROL) && key == 24))
 		{
 			closeProgram();
 		}
@@ -412,11 +416,10 @@ void ofApp::keyPressed(int key)
 			mKeyUI = mProgramGUI.getControl(name);
 		}
 	}
-}
-
-//--------------------------------------------------------------
-void ofApp::keyReleased(int key){
-
+	else if (args.key == OF_KEY_ESC)
+	{
+		ofExit();
+	}
 }
 
 //--------------------------------------------------------------

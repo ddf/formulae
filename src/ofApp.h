@@ -18,8 +18,8 @@ class ofApp : public ofBaseApp, public ofxMidiListener {
 		void draw() override;
 		void exit() override;
 
-		void keyPressed(int key) override;
-		void keyReleased(int key) override;
+		void keyPressed(ofKeyEventArgs & args) override;
+		
 		void mouseMoved(int x, int y ) override;
 		void mouseDragged(int x, int y, int button) override;
 		void mousePressed(int x, int y, int button) override;
