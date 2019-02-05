@@ -22,9 +22,16 @@ ProgramGUI::~ProgramGUI()
 void ProgramGUI::setup(const std::string& collectionName /* = "" */, const std::string& code, const std::string& filename /* = "settings.xml" */, float x /* = 10 */, float y /* = 10 */)
 {
 	ofxGuiGroup::setup(collectionName, filename, x, y);
-	mProgramCode = code;
+	std::istringstream stream(code);
+	std::string line;
+	while (std::getline(stream, line))
+	{
+		mProgramCode.push_back(line + "\n");
+	}
 	spacing = 0;
 	spacingNextElement = -1;
+	mProgramAnim = 0;
+	mProgramLines = 0;
 	mW = b.width;
 	mH = b.height;
 }
@@ -39,7 +46,22 @@ void ProgramGUI::teardown()
 		}
 	}
 	collection.clear();
+	mProgramCode.clear();
 	unregisterMouseEvents();
+}
+
+void ProgramGUI::update(const float dt)
+{
+	if (!mbRunning && mProgramLines < mProgramCode.size())
+	{
+		mProgramAnim += dt * 100;
+		ofLog() << mProgramAnim;
+		if (mProgramAnim - mProgramLines >= 1)
+		{
+			mProgramLines++;
+			setNeedsRedraw();
+		}
+	}
 }
 
 void ProgramGUI::setSize(float w, float h)
@@ -87,6 +109,14 @@ void ProgramGUI::sizeChangedCB()
 	setNeedsRedraw();
 }
 
+void ProgramGUI::setRunning(bool state)
+{
+	mbRunning = state; 
+	mProgramAnim = 0;
+	mProgramLines = 0;
+	setNeedsRedraw();
+}
+
 void ProgramGUI::generateDraw()
 {
 	border.clear();
@@ -113,7 +143,12 @@ void ProgramGUI::generateDraw()
 
 		if (!mbRunning)
 		{
-			textMesh.append(getTextMesh(mProgramCode, textPadding + b.x, header + b.y + 4));
+			std::string program;
+			for (int i = 0; i < mProgramLines; ++i)
+			{
+				program += mProgramCode[i];
+			}
+			textMesh.append(getTextMesh(program, textPadding + b.x, header + b.y + 4));
 		}
 	}
 	else 

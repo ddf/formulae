@@ -303,8 +303,14 @@ void ofApp::toggleProgramState()
 }
 
 //--------------------------------------------------------------
-void ofApp::update(){
+void ofApp::update()
+{
+	const float dt = 1.0f / ofGetFrameRate();
 
+	if (mState == kStateProgramStopped || mState == kStateProgramRunning)
+	{
+		mProgramGUI.update(dt);
+	}
 }
 
 //--------------------------------------------------------------
