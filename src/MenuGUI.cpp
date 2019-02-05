@@ -16,6 +16,7 @@ MenuGUI * MenuGUI::setup(const std::string& collectionName /*= ""*/, const std::
 	setHeaderBackgroundColor(ofColor::black);
 	setBorderColor(ofColor::black);
 	spacing = 4;
+	focusedButton = nullptr;	
 
 	return this;
 }
@@ -24,7 +25,50 @@ void MenuGUI::add(std::string & buttonName)
 {
 	auto button = new Button(ofParameter<int>(buttonName, collection.size()));
 	ofAddListener(button->clickedE, this, &MenuGUI::onButtonClick);
+	ofAddListener(button->hoveredE, this, &MenuGUI::onButtonHover);
 	ofxGuiGroup::add(button);
+	button->setPosition(button->getPosition() + ofPoint(30, 0));
+	if (focusedButton == nullptr)
+	{
+		button->setFocused(true);
+		focusedButton = button;
+	}
+}
+
+void MenuGUI::keyPressed(ofKeyEventArgs& args)
+{
+	if (focusedButton == nullptr) return;
+
+	const int key = args.key;
+
+	if (key == OF_KEY_RETURN)
+	{
+		int id = focusedButton->getID();
+		onButtonClick(id);
+	}
+	else if (key == OF_KEY_DOWN && focusedButton->getID() < collection.size())
+	{
+		int next = focusedButton->getID() + 1;
+		onButtonHover(next);
+	}
+	else if (key == OF_KEY_UP && focusedButton->getID() > 0)
+	{
+		int next = focusedButton->getID() - 1;
+		onButtonHover(next);
+	}
+	else
+	{
+		int idx = key - '1';
+		if (idx >= 0 && idx < collection.size())
+		{
+			onButtonHover(idx);
+		}
+	}
+}
+
+void MenuGUI::keyReleased(ofKeyEventArgs& args)
+{
+
 }
 
 bool MenuGUI::setValue(float mx, float my, bool bCheck)
@@ -65,4 +109,25 @@ void MenuGUI::generateDraw()
 void MenuGUI::onButtonClick(int& id)
 {
 	ofNotifyEvent(buttonClickedE, id, this);
+}
+
+void MenuGUI::onButtonHover(int& id)
+{
+	Button* button = dynamic_cast<Button*>(getControl(id));
+	if (button != nullptr && focusedButton != button)
+	{
+		focusedButton->setFocused(false);
+		button->setFocused(true);
+		focusedButton = button;
+	}
+}
+
+void MenuGUI::onMinimize()
+{
+	ofUnregisterKeyEvents(this, defaultEventsPriority);
+}
+
+void MenuGUI::onMaximize()
+{
+	ofRegisterKeyEvents(this, defaultEventsPriority);
 }

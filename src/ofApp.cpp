@@ -98,11 +98,13 @@ void ofApp::setup()
 	for (auto child : mAppSettings.getFirstChild().getChildren("program"))
 	{
 		mProgramList.push_back(child);
-		std::string label("    ");
-		label += std::to_string(id) + ". " + child.getAttribute("name").getValue() + "\n";
+		std::string label(std::to_string(id));
+		label += ". " + child.getAttribute("name").getValue();
 		mMenu.add(label);
 		++id;
 	}
+
+	mMenu.maximize();
 
 	ofAddListener(mMenu.buttonClickedE, this, &ofApp::programSelected);
 	ofAddListener(mProgramGUI.closePressedE, this, &ofApp::closeProgram);
@@ -232,6 +234,7 @@ void ofApp::loadProgram(ofXml programSettings)
 	int errorPosition;
 	mProgram = Program::Compile(mCode.c_str(), memorySize, error, errorPosition);
 
+	mMenu.minimize();
 	mState = kStateProgram;
 }
 
@@ -264,7 +267,7 @@ void ofApp::closeProgram()
 
 		// have to reset this otherwise our menu options move when hovered over
 		ofxBaseGui::setDefaultTextPadding(10);
-
+		mMenu.maximize();
 		mState = kStateMenu;
 	}
 }
@@ -333,15 +336,7 @@ void ofApp::exit()
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key)
 {
-	if (mState == kStateMenu)
-	{
-		int pidx = key - '1';
-		if (pidx >= 0 && pidx < mProgramList.size())
-		{
-			loadProgram(mProgramList[pidx]);
-		}
-	}
-	else if (mState == kStateProgram)
+	if (mState == kStateProgram)
 	{
 		if (key == 'q')
 		{
@@ -375,7 +370,7 @@ void ofApp::keyPressed(int key)
 				}
 			}
 		}
-		else if (std::isalpha(key))
+		else if (key >= 'a' && key <= 'z')
 		{
 			std::string name(1, key);
 			mKeyUI = mProgramGUI.getControl(name);

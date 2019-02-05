@@ -5,6 +5,7 @@
 Button::Button()
 	: ofxButton()
 	, hover(false)
+	, focused(false)
 {
 }
 
@@ -24,6 +25,7 @@ Button* Button::setup(ofParameter<int> _bVal, float width /* = defaultWidth */, 
 
 	id = _bVal;
 	hover = false;
+	focused = false;
 	checkboxRect.set(1, 1, b.width - 2, b.height - 2);
 
 	addListener(this, &Button::onClick);
@@ -37,6 +39,7 @@ Button* Button::setup(const std::string& toggleName, int bval, float width /* = 
 
 	id = bval;
 	hover = false;
+	focused = false;
 	checkboxRect.set(1, 1, b.width - 2, b.height - 2);
 
 	addListener(this, &Button::onClick);
@@ -50,10 +53,23 @@ bool Button::mouseMoved(ofMouseEventArgs & args)
 	if (inside != hover)
 	{
 		hover = inside;
-		setNeedsRedraw();
+		if (hover)
+		{
+			ofNotifyEvent(hoveredE, id, this);
+		}
 	}
 
 	return inside;
+}
+
+void Button::setFocused(bool focus)
+{
+	if (focused != focus)
+	{
+		setNeedsRedraw();
+	}
+
+	focused = focus;
 }
 
 void Button::generateDraw()
@@ -63,12 +79,12 @@ void Button::generateDraw()
 	bg.rectangle(b);
 
 	fg.clear();
-	if (hover) 
-	{
-		fg.setFilled(true);
-		fg.setFillColor(thisFillColor);
-		fg.rectangle(b.getPosition() + checkboxRect.getTopLeft(), checkboxRect.width, checkboxRect.height);
-	}
+	//if (hover) 
+	//{
+	//	fg.setFilled(true);
+	//	fg.setFillColor(thisFillColor);
+	//	fg.rectangle(b.getPosition() + checkboxRect.getTopLeft(), checkboxRect.width, checkboxRect.height);
+	//}
 	//else {
 	//	fg.setFilled(false);
 	//	fg.setStrokeWidth(1);
@@ -94,9 +110,15 @@ void Button::generateDraw()
 	}
 
 	textMesh = getTextMesh(name, textX, b.y + b.height / 2 + 4);
+
+	if (focused)
+	{
+		textX -= getTextBoundingBox("> ", textX, 0).getWidth();
+		textMesh.append(getTextMesh("> ", textX, b.y + b.height / 2 + 4));
+	}
 }
 
 void Button::onClick()
 {
-	ofNotifyEvent(clickedE, id);
+	ofNotifyEvent(clickedE, id, this);
 }

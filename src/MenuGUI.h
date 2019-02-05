@@ -15,10 +15,20 @@ public:
 
 	ofEvent<int> buttonClickedE;
 
+	void keyPressed(ofKeyEventArgs& key);
+	void keyReleased(ofKeyEventArgs& key);
+
 protected:
 	bool setValue(float mx, float my, bool bCheck) override;
 	void generateDraw() override;
 
 	void onButtonClick(int& id);
+	void onButtonHover(int& id);
+
+	Button* focusedButton;
+
+	virtual void onMinimize() override;
+	virtual void onMaximize() override;
+
 };
 

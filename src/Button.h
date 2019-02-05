@@ -13,7 +13,12 @@ public:
 
 	virtual bool mouseMoved(ofMouseEventArgs & args) override;
 
+	void setFocused(bool focus);
+	bool isFocused() const { return focused; }
+	int getID() const { return id; }
+
 	ofEvent<int> clickedE;
+	ofEvent<int> hoveredE;
 
 protected:
 	virtual void generateDraw() override;
@@ -22,5 +27,6 @@ protected:
 
 	int  id;
 	bool hover;
+	bool focused;
 };
 
