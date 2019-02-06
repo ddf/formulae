@@ -15,6 +15,9 @@ MenuGUI * MenuGUI::setup(const std::string& collectionName /*= ""*/, const std::
 	ofxGuiGroup::setup(collectionName, filename, x, y);
 	setHeaderBackgroundColor(ofColor::black);
 	setBorderColor(ofColor::black);
+	headerTextBox = getTextBoundingBox(collectionName, 0, 0);
+	header = headerTextBox.height;
+	b.height = header;
 	spacing = 4;
 	spacingNextElement = -1;
 	focusedButton = nullptr;	
@@ -110,7 +113,7 @@ void MenuGUI::generateDraw()
 	headerBg.setFilled(true);
 	headerBg.rectangle(b.x, b.y + 1 + spacingNextElement, b.width, header);
 
-	textMesh = getTextMesh(getName(), textPadding + b.x, header / 2 + 4 + b.y + spacingNextElement);
+	textMesh = getTextMesh(getName(), textPadding + b.x, header / 2 - headerTextBox.height / 2 + 4 + b.y + spacingNextElement);
 }
 
 void MenuGUI::onButtonClick(int& id)

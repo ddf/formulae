@@ -1,5 +1,30 @@
 <?xml version="1.0"?>
 <root fullscreen="false">
+  <prompt> <!-- modified from http://patorjk.com/software/taag/#p=display&c=c&f=Big%20Money-nw&t=X3J11%0Aformulae -->
+  <![CDATA[
+/***
+*    XX\   XX\  333333\     JJJJJ\   11\     11\
+*    XX |  XX |33 ___33\    \__JJ |1111 |  1111 |
+*    \XX\ XX  |\_/   33 |      JJ |\_11 |  \_11 |
+*     \XXXX  /   33333 /       JJ |  11 |    11 |
+*     XX  XX<    \___33\ JJ\   JJ |  11 |    11 |
+*    XX  /\XX\ 33\   33 |JJ |  JJ |  11 |    11 |
+*    XX /  XX |\333333  |\JJJJJJ  |111111\ 111111\
+*    \__|  \__| \______/  \______/ \______|\______|
+*                                                                                                                                                                                                                                                   
+*     ffffff\                                             ll\                     
+*    ff  __ff\                                            ll |                    
+*    ff /  \__|oooooo\   rrrrrr\  mmmmmm\mmmm\  uu\   uu\ ll | aaaaaa\   eeeeee\  
+*    ffff\    oo  __oo\ rr  __rr\ mm  _mm  _mm\ uu |  uu |ll | \____aa\ ee  __ee\ 
+*    ff  _|   oo /  oo |rr |  \__|mm / mm / mm |uu |  uu |ll | aaaaaaa |eeeeeeee |
+*    ff |     oo |  oo |rr |      mm | mm | mm |uu |  uu |ll |aa  __aa |ee   ____|
+*    ff |     \oooooo  |rr |      mm | mm | mm |\uuuuuu  |ll |\aaaaaaa |\eeeeeee\ 
+*    \__|      \______/ \__|      \__| \__| \__| \______/ \__| \_______| \_______|                                                                                                                                                                
+*/
+
+Choose a program:
+  ]]>
+  </prompt>
   <midi device="Midi Fighter Twister"/>
   <program name="prime_glitch" bits="15" tempo="60" memory="512">
     <code>

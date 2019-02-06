@@ -91,7 +91,8 @@ void ofApp::setup()
 	ofxBaseGui::setDefaultHeight(40);
 	ofxBaseGui::setDefaultTextPadding(10);
 
-	mMenu.setup("Choose a program:", "menu.xml", 0, 0);
+	const std::string prompt = mAppSettings.getFirstChild().getChild("prompt").getValue();
+	mMenu.setup(prompt, "menu.xml", 0, 0);
 
 	ofxBaseGui::setDefaultHeight(20);
 

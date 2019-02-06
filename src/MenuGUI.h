@@ -31,5 +31,7 @@ protected:
 	virtual void onMinimize() override;
 	virtual void onMaximize() override;
 
+private:
+	ofRectangle headerTextBox;
 };
 
