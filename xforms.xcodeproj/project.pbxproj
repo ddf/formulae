@@ -739,9 +739,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		E4B69B5A0A3A1756003C02F2 /* xforms */ = {
+		E4B69B5A0A3A1756003C02F2 /* formulae */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = E4B69B5F0A3A1757003C02F2 /* Build configuration list for PBXNativeTarget "xforms" */;
+			buildConfigurationList = E4B69B5F0A3A1757003C02F2 /* Build configuration list for PBXNativeTarget "formulae" */;
 			buildPhases = (
 				E42962A92163ECCD00A6A9E2 /* ShellScript */,
 				E4B69B580A3A1756003C02F2 /* Sources */,
@@ -754,7 +754,7 @@
 			);
 			dependencies = (
 			);
-			name = xforms;
+			name = formulae;
 			productName = myOFApp;
 			productReference = E4B69B5B0A3A1756003C02F2 /* xformsDebug.app */;
 			productType = "com.apple.product-type.application";
@@ -782,7 +782,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				E4B69B5A0A3A1756003C02F2 /* xforms */,
+				E4B69B5A0A3A1756003C02F2 /* formulae */,
 			);
 		};
 /* End PBXProject section */
@@ -943,7 +943,7 @@
 					"$(OF_CORE_FRAMEWORKS)",
 					"$(LIB_OF)",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = net.compartmental.xforms;
+				PRODUCT_BUNDLE_IDENTIFIER = net.compartmental.formulae;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
 				baseConfigurationReference = E4EB6923138AFD0F00A09F29;
@@ -1065,7 +1065,7 @@
 					"$(OF_CORE_FRAMEWORKS)",
 					"$(LIB_OF_DEBUG)",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = net.compartmental.xforms;
+				PRODUCT_BUNDLE_IDENTIFIER = net.compartmental.formulae;
 				PRODUCT_NAME = "$(TARGET_NAME)Debug";
 				WRAPPER_EXTENSION = app;
 			};
@@ -1105,7 +1105,7 @@
 					"$(OF_CORE_FRAMEWORKS)",
 					"$(LIB_OF)",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = net.compartmental.xforms;
+				PRODUCT_BUNDLE_IDENTIFIER = net.compartmental.formulae;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
 				baseConfigurationReference = E4EB6923138AFD0F00A09F29;
@@ -1125,7 +1125,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		E4B69B5F0A3A1757003C02F2 /* Build configuration list for PBXNativeTarget "xforms" */ = {
+		E4B69B5F0A3A1757003C02F2 /* Build configuration list for PBXNativeTarget "formulae" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				E4B69B600A3A1757003C02F2 /* Debug */,
