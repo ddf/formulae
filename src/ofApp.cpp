@@ -33,7 +33,9 @@ void ofApp::setup()
 	mSoundSettings.numOutputChannels = kOutputChannels;
 	mSoundSettings.sampleRate = kSampleRate;
 	mSoundSettings.bufferSize = kBufferSize;
+#ifdef WIN32
 	mSoundSettings.setApi(ofSoundDevice::MS_DS);
+#endif
 	mSoundSettings.setOutListener(this);
 	ofSoundStreamSetup(mSoundSettings);
 
