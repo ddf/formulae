@@ -41,9 +41,7 @@ void ofApp::setup()
 
 	mAppSettings.load("settings.xml");
 
-#if defined(NDEBUG)
 	ofSetFullscreen(mAppSettings.getFirstChild().getAttribute("fullscreen").getBoolValue());
-#endif
 
 	auto midi = mAppSettings.getFirstChild().getChild("midi");
 	if (midi)
