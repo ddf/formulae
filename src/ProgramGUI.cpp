@@ -31,7 +31,7 @@ void ProgramGUI::setup(const std::string& collectionName /* = "" */, const std::
 	spacing = 0;
 	spacingNextElement = -1;
 	mProgramAnim = 0;
-	mProgramLines = 0;
+	mProgramLines = mProgramCode.size();
 	mW = b.width;
 	mH = b.height;
 }
@@ -113,7 +113,7 @@ void ProgramGUI::setRunning(bool state)
 {
 	mbRunning = state; 
 	mProgramAnim = 0;
-	mProgramLines = 0;
+	mProgramLines = mProgramCode.size();
 	setNeedsRedraw();
 }
 
