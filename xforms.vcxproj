@@ -262,6 +262,9 @@
   <ItemGroup>
     <Image Include="icon.ico" />
   </ItemGroup>
+  <ItemGroup>
+    <Xml Include="bin\data\settings.xml" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ProjectExtensions>
     <VisualStudio>
