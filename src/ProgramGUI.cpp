@@ -75,12 +75,16 @@ void ProgramGUI::setSize(float w, float h)
 	if (!collection.empty())
 	{
 		float rw = w / mW;
-		float rh = h / mH;
+		// height scale is relative only to the size of the height without the header
+		// because the header never changes size.
+		float rh = (h-header) / (mH-header);
 		auto pos = getPosition();
 		for (auto ui : collection)
 		{
-			ofPoint dp = ui->getPosition() - pos;
-			ui->setShape(pos.x + rw*dp.x, pos.y + rh*dp.y, rw*ui->getWidth(), rh*ui->getHeight());
+			// since we always add in the header to a position,
+			// we need to remove that offset before calculating the delta-position that we scale.
+			ofPoint dp = (ui->getPosition() - ofPoint(0, header)) - pos;
+			ui->setShape(pos.x + rw*dp.x, pos.y + header + rh*dp.y, rw*ui->getWidth(), rh*ui->getHeight());
 		}
 	}
 	mW = w;

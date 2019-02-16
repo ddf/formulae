@@ -141,7 +141,8 @@ void ofApp::loadProgram(ofXml programSettings)
 		// set size to reference size for initial placement
 		const float w = interfaceSettings.getAttribute("w").getFloatValue();
 		const float h = interfaceSettings.getAttribute("h").getFloatValue();
-		mProgramGUI.setSize(w, h);
+		// we need to include the size of the header here, otherwise scaling won't work properly
+		mProgramGUI.setSize(w, h+40);
 
 		// setup all the controls
 		for (auto child : interfaceSettings.getChildren())
@@ -209,7 +210,9 @@ void ofApp::loadProgram(ofXml programSettings)
 			if (ui != nullptr && shape)
 			{
 				float x = shape.getAttribute("x").getFloatValue();
-				float y = shape.getAttribute("y").getFloatValue();
+				// have to add the size of the header to the y position
+				// because we don't consider that part of the UI space when explicitly defining positions
+				float y = shape.getAttribute("y").getFloatValue() + 40;
 				float w = shape.getAttribute("w").getFloatValue();
 				float h = shape.getAttribute("h").getFloatValue();
 

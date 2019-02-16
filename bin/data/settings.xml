@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<root fullscreen="false">
+<root fullscreen="true">
   <prompt> <!-- modified from http://patorjk.com/software/taag/#p=display&c=c&f=Big%20Money-nw&t=X3J11%0Aformulae -->
   <![CDATA[
 /***
@@ -59,43 +59,43 @@ Choose a program:
     <interface w="640" h="380">
       
       <control type="slider" name="h" target="V1" min="0" max="32" value="4">
-        <shape x="10" y="20" w="100" h="10"/>
+        <shape x="10" y="10" w="100" h="10"/>
         <midi control="0" channel="1"/>
       </control>
       <viz name="hviz" source="h" type="scatter" buffer="735">
-        <shape x="10" y="31" w="100" h="56"/>
+        <shape x="10" y="21" w="100" h="56"/>
       </viz>
 
       <control type="slider" name="s" target="V2" min="0" max="32" value="1">
-        <shape x="10" y="100" w="100" h="10"/>
+        <shape x="10" y="90" w="100" h="10"/>
         <midi control="1" channel="1"/>
       </control>
       <viz name="sviz" source="s" type="bars" buffer="8192">
-        <shape x="10" y="111" w="100" h="56"/>
+        <shape x="10" y="101" w="100" h="56"/>
       </viz>
 
       <control type="slider" name="k" target="V3" min="0" max="8" value="1">
-        <shape x="10" y="180" w="100" h="10"/>
+        <shape x="10" y="170" w="100" h="10"/>
         <midi control="2" channel="1"/>
       </control>
       <viz name="kviz" source="k" type="bars" buffer="8192">
-        <shape x="10" y="191" w="100" h="56"/>
+        <shape x="10" y="181" w="100" h="56"/>
       </viz>
 
       <control type="slider" name="c" target="V0" min="0" max="15" value="8">
-        <shape x="10" y="260" w="100" h="10"/>
+        <shape x="10" y="250" w="100" h="10"/>
         <midi control="3" channel="1"/>
       </control>
       <viz name="cviz" source="c" type="blocks" buffer="1" range="128">
-        <shape x="10" y="271" w="100" h="56"/>        
+        <shape x="10" y="261" w="100" h="56"/>
       </viz>
 
       <control type="slider" name="z" target="V4" min="0" max="31" value="31">
-        <shape x="120" y="20" w="510" h="10"/>
+        <shape x="120" y="10" w="510" h="10"/>
         <midi control="4" channel="1"/>
       </control>
       <viz name="zviz" source="z" type="bars" buffer="128" range="32768">
-        <shape x="120" y="31" w="510" h="216"/>
+        <shape x="120" y="21" w="510" h="216"/>
       </viz>
 
     </interface>
@@ -127,35 +127,35 @@ Choose a program:
     <interface w="640" h="380">
       
       <control type="slider" name="p" target="V4" min="1" max="32" value="16">
-        <shape x="10" y="20" w="100" h="10"/>
+        <shape x="10" y="10" w="100" h="10"/>
         <midi control="5" channel="1"/>
       </control>
       <viz name="pviz" source="p" type="blocks" buffer="1" range="7" columns="2">
-        <shape x="10" y="31" w="100" h="56"/>
+        <shape x="10" y="21" w="100" h="56"/>
       </viz>
       
       <control type="slider" name="a" target="V0" min="1" max="16" value="16">
-        <shape x="120" y="20" w="500" h="10"/>
+        <shape x="120" y="10" w="500" h="10"/>
         <midi control="6" channel="1"/>
       </control>
       <viz name="aviz" source="a" type="bars" buffer="256" range="256">
-        <shape x="120" y="31" w="500" h="90"/>
+        <shape x="120" y="21" w="500" h="90"/>
       </viz>
   
       <control type="slider" name="b" target="V1" min="1" max="32" value="8">
-        <shape x="120" y="134" w="500" h="10"/>
+        <shape x="120" y="124" w="500" h="10"/>
         <midi control="7" channel="1"/>
       </control>
       <viz name="bviz" source="b" type="wave" buffer="128" rate="16" range="256">
-        <shape x="120" y="145" w="500" h="90"/>
+        <shape x="120" y="135" w="500" h="90"/>
       </viz>
 
       <control type="slider" name="c" target="V3" min="1" max="16" value="8">
-        <shape x="120" y="248" w="500" h="10"/>
+        <shape x="120" y="238" w="500" h="10"/>
         <midi control="8" channel="1"/>
       </control>
       <viz name="cviz" source="c" type="bars" buffer="2048">
-        <shape x="120" y="259" w="500" h="90"/>
+        <shape x="120" y="249" w="500" h="90"/>
       </viz>
       
     </interface>
@@ -194,37 +194,37 @@ Choose a program:
   [1] = (w/2 + ~z) ^ h | k;
       ]]>
     </code>
-    <interface w="640" h="380">
+    <interface w="640" h="320">
       <control type="slider" name="b" target="V0" min="1" max="16" value="4">
-        <shape x="10" y="20" w="620" h="10"/>
+        <shape x="10" y="10" w="620" h="10"/>
         <midi control="9" channel="1"/>
       </control>
       <viz name="bviz" source="b" type="bars" buffer="128" rate="64" range="128">
-        <shape x="10" y="31" w="620" h="56"/>
+        <shape x="10" y="21" w="620" h="56"/>
       </viz>
 
       <control type="slider" name="s" target="V1" min="0" max="15" value="8">
-        <shape x="10" y="100" w="620" h="10"/>
+        <shape x="10" y="90" w="620" h="10"/>
         <midi control="10" channel="1"/>
       </control>
       <viz name="sviz" source="s" type="bars" buffer="256" range="256">
-        <shape x="10" y="111" w="620" h="56"/>
+        <shape x="10" y="101" w="620" h="56"/>
       </viz>
 
       <control type="slider" name="k" target="V2" min="0" max="8" value="1">
-        <shape x="40" y="180" w="250" h="10"/>
+        <shape x="40" y="170" w="250" h="10"/>
         <midi control="11" channel="1"/>
       </control>
       <viz name="kviz" source="k" type="bars" buffer="4096">
-        <shape x="40" y="191" w="250" h="56"/>
+        <shape x="40" y="181" w="250" h="56"/>
       </viz>
 
       <control type="slider" name="h" target="V3" min="0" max="4" value="1">
-        <shape x="350" y="180" w="250" h="10"/>
+        <shape x="350" y="170" w="250" h="10"/>
         <midi control="12" channel="1"/>
       </control>
       <viz name="hviz" source="h" type="bars" buffer="8192">
-        <shape x="350" y="191" w="250" h="56"/>
+        <shape x="350" y="181" w="250" h="56"/>
       </viz>
     </interface>
   </program>
@@ -275,27 +275,27 @@ Choose a program:
     <interface w="640" h="360">
 
       <control type="slider" name="k" target="V3" min="1" max="8" value="8">
-        <shape x="60" y="20" w="100" h="10"/>
+        <shape x="60" y="10" w="100" h="10"/>
         <midi control="13" channel="1"/>
       </control>
       <viz name="kviz" source="k" type="bars" buffer="256" rate="8">
-        <shape x="60" y="31" w="100" h="320"/>
+        <shape x="60" y="21" w="100" h="320"/>
       </viz>
 
       <control type="slider" name="h" target="V1" min="1" max="8" value="4">
-        <shape x="270" y="20" w="100" h="10"/>
+        <shape x="270" y="10" w="100" h="10"/>
         <midi control="14" channel="1"/>
       </control>
       <viz name="hviz" source="h" type="bars" buffer="256" rate="8">
-        <shape x="270" y="31" w="100" h="320"/>
+        <shape x="270" y="21" w="100" h="320"/>
       </viz>
 
       <control type="slider" name="s" target="V2" min="1" max="8" value="8">
-        <shape x="480" y="20" w="100" h="10"/>
+        <shape x="480" y="10" w="100" h="10"/>
         <midi control="15" channel="1"/>
       </control>
       <viz name="sviz" source="s" type="bars" buffer="256" rate="8">
-        <shape x="480" y="31" w="100" h="320"/>
+        <shape x="480" y="21" w="100" h="320"/>
       </viz>
       
     </interface>
@@ -331,63 +331,63 @@ Choose a program:
     <interface w="640" h="360">
       
       <viz name="evolution" source="@5" type="value">
-        <shape x="280" y ="30" w="80" h="10"/>
+        <shape x="280" y ="20" w="80" h="10"/>
       </viz>
       
       <viz name="@0" source="@0" type="blocks" buffer="1" range="7" columns="7">
-        <shape x="280" y ="41" w="80" h="10"/>
+        <shape x="280" y ="31" w="80" h="10"/>
       </viz>
       
       <viz name="@1" source="@1" type="blocks" buffer="1" range="7" columns="7">
-        <shape x="280" y ="53" w="80" h="10"/>
+        <shape x="280" y ="43" w="80" h="10"/>
       </viz>
       
       <viz name="@2" source="@2" type="blocks" buffer="1" range="7" columns="7">
-        <shape x="280" y ="65" w="80" h="10"/>
+        <shape x="280" y ="55" w="80" h="10"/>
       </viz>
       
       <viz name="@3" source="@3" type="blocks" buffer="1" range="7" columns="7">
-        <shape x="280" y ="77" w="80" h="10"/>
+        <shape x="280" y ="67" w="80" h="10"/>
       </viz>
       
       <viz name="@4" source="@4" type="blocks" buffer="1" range="7" columns="7">
-        <shape x="280" y ="89" w="80" h="10"/>
+        <shape x="280" y ="79" w="80" h="10"/>
       </viz>
       
       <viz name="@6" source="@6" type="blocks" buffer="1" range="7" columns="7">
-        <shape x="280" y ="101" w="80" h="10"/>
+        <shape x="280" y ="91" w="80" h="10"/>
       </viz>
       
       <viz name="z" source="z" type="blocks" buffer="1" range="2" columns="2">
-        <shape x="280" y ="113" w="80" h="10"/>
+        <shape x="280" y ="103" w="80" h="10"/>
       </viz>     
 
       <!--<control type="slider" name="a" target="V1" min="0" max="8" value="1">
         <shape x="10" y="20" w="620" h="10"/>
       </control>-->
       <viz name="aviz" source="a" type="bars" buffer="256" range="256">
-        <shape x="20" y="30" w="240" h="120"/>
+        <shape x="20" y="20" w="240" h="120"/>
       </viz>
 
       <!--<control type="slider" name="b" target="V2" min="0" max="8" value="0">
         <shape x="10" y="100" w="620" h="10"/>
       </control>-->
       <viz name="bviz" source="c" type="bars" buffer="256" range="256">
-        <shape x="380" y="30" w="240" h="120"/>
+        <shape x="380" y="20" w="240" h="120"/>
       </viz>
 
       <!--<control type="slider" name="c" target="V3" min="0" max="8" value="0">
         <shape x="10" y="180" w="620" h="10"/>
       </control>-->
       <viz name="cviz" source="o" type="bars" buffer="512" range="256">
-        <shape x="20" y="168" w="600" h="80"/>
+        <shape x="20" y="158" w="600" h="80"/>
       </viz>
 
       <!--<control type="slider" name="p" target="V4" min="0" max="8" value="0">
         <shape x="10" y="260" w="620" h="10"/>
       </control>-->
       <viz name="pviz" source="s" type="bars" buffer="1024" range="256">
-        <shape x="20" y="264" w="600" h="80"/>
+        <shape x="20" y="254" w="600" h="80"/>
       </viz>
 
     </interface>
