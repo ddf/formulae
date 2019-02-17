@@ -49,6 +49,7 @@ private:
 	} mState;
 
 	ofSoundStreamSettings mSoundSettings;
+	float mVolume; // scales the output, can be specified in settings.ini
 	// full settings.xml file
 	ofXml mAppSettings;
 	std::vector<ofXml> mProgramList;

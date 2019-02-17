@@ -1,5 +1,6 @@
 <?xml version="1.0"?>
-<root fullscreen="true">
+<!-- the volume attribute of root is clamped [0,1] to avoid blowing out ears/speakers -->
+<root fullscreen="true" volume="0.5">
   <prompt> <!-- modified from http://patorjk.com/software/taag/#p=display&c=c&f=Big%20Money-nw&t=X3J11%0Aformulae -->
   <![CDATA[
 /***

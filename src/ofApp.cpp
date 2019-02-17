@@ -42,6 +42,17 @@ void ofApp::setup()
 	mAppSettings.load("settings.xml");
 
 	ofSetFullscreen(mAppSettings.getFirstChild().getAttribute("fullscreen").getBoolValue());
+	
+	auto volume = mAppSettings.getFirstChild().getAttribute("volume");
+	if (volume)
+	{
+		mVolume = ofClamp(volume.getFloatValue(), 0, 1);
+	}
+	else
+	{
+		// note: this will be really really loud
+		mVolume = 1;
+	}
 
 	auto midi = mAppSettings.getFirstChild().getChild("midi");
 	if (midi)
@@ -590,6 +601,9 @@ void ofApp::audioOut(ofSoundBuffer& output)
 	}
 	mOutputRead += bufferSize/nChannels;
 	mOutputMutex.unlock();
+	
+	// scale the volume after we capture it so the visualization doesn't suffer
+	output *= mVolume;
 }
 
 //--------------------------------------------------------------
